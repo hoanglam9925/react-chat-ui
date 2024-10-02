@@ -17,6 +17,7 @@ const Container = styled.div`
 `
 
 export default function Sidebar({ children }: Props) {
+    console.debug("àgndofghosdfghosdgjosd");
     return (
         <Container>{children}</Container>
     )
