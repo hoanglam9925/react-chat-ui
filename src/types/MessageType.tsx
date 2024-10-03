@@ -15,6 +15,7 @@ type MessageType = {
   createdAt?: Date
   seen?: boolean
   loading?: boolean
+  failed?: boolean
 }
 
 export default MessageType

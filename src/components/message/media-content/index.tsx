@@ -44,7 +44,7 @@ padding-bottom:8px;
 position: relative;
 box-sizing: border-box;
 word-wrap: break-word;
-width: 90%;
+width: 100%;
 text-decoration: none;
 user-select: none;
 `

@@ -53,6 +53,7 @@ export default function MyMessage({
     text,
     media,
     loading,
+    failed,
     last,
     single,
     clusterFirstMessage,
@@ -112,6 +113,7 @@ export default function MyMessage({
                         checkmarkColor={checkmarkColor}
                         date={created_at}
                         seen={seen}
+                        failed={failed}
                         loading={loading} />
 
                 </Container>

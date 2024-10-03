@@ -11,6 +11,7 @@ export type Props = {
     text?: string,
     media?: MediaType,
     loading?: boolean
+    failed?: boolean,
     type?: "incoming" | "outgoing"
     user?: User
     showAvatar?: boolean
@@ -31,6 +32,7 @@ export default function Message({
     created_at,
     seen,
     loading,
+    failed,
     type = "outgoing",
     user,
     showAvatar,
@@ -48,6 +50,7 @@ export default function Message({
                 text={text}
                 created_at={created_at}
                 seen={seen}
+                failed={failed}
                 media={media}
                 last={last}
                 single={single}

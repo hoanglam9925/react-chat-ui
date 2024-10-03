@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react'
 import Loading from './loading'
 import styled from 'styled-components'
 import { calculateTimeAgo } from '../../../utils/date-utils'
+import Failed from '../../failed'
 
 type Props = {
     loading?: boolean
     date?: Date
     seen?: boolean
+    failed?: boolean
     showSeen?: boolean
     color?: string
     loaderColor?: string
@@ -63,7 +65,7 @@ width: 100%;
 position: relative;
 justify-content: end;
 align-items: center;
-margin-top: -8px;
+// margin-top: -8px;
 user-select: none;
 
 `
@@ -73,6 +75,7 @@ export default function Timestamp({
     date,
     showSeen,
     seen,
+    failed,
     color,
     loaderColor,
     checkmarkColor
@@ -81,6 +84,7 @@ export default function Timestamp({
     const [dateSent, setDateSent] = useState<string | undefined>()
 
     useEffect(() => {
+        console.debug({failed});
         function updateDateSent() {
             if (date) {
                 setDateSent(calculateTimeAgo(date))
@@ -102,41 +106,39 @@ export default function Timestamp({
 
             {loading ?
                 <LoadingContainer  > <Loading color={loaderColor} /> </LoadingContainer>
-                :
-                (showSeen ?
+                : (failed ? <Failed></Failed> :
+                    (showSeen ?
+                        <Check
+                            color={checkmarkColor}>
+                            {seen ?
 
 
-                    <Check
-                        color={checkmarkColor}>
-                        {seen ?
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    width="16px"
+                                    height="16px"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="1.5"><path
+                                        fillRule="evenodd"
+                                        d="m6 16.293 9.646-9.647.708.708-10 10a.5.5 0 0 1-.708 0l-4-4 .708-.708L6 16.293zm6 0 9.646-9.647.707.708-9.999 10a.5.5 0 0 1-.707 0l-1.5-1.5.707-.708L12 16.293z"
+                                        clipRule="evenodd"></path></svg>
+                                :
+
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    width="16px"
+                                    height="16px"
+                                    viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0V0z"></path>
+                                    <path
+                                        fill='currentColor'
+                                        d="M9 16.17L5.53 12.7c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l4.18 4.18c.39.39 1.02.39 1.41 0L20.29 7.71c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L9 16.17z"></path></svg>
 
 
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                width="16px"
-                                height="16px"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"><path
-                                    fillRule="evenodd"
-                                    d="m6 16.293 9.646-9.647.708.708-10 10a.5.5 0 0 1-.708 0l-4-4 .708-.708L6 16.293zm6 0 9.646-9.647.707.708-9.999 10a.5.5 0 0 1-.707 0l-1.5-1.5.707-.708L12 16.293z"
-                                    clipRule="evenodd"></path></svg>
-                            :
-
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                width="16px"
-                                height="16px"
-                                viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0V0z"></path>
-                                <path
-                                    fill='currentColor'
-                                    d="M9 16.17L5.53 12.7c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l4.18 4.18c.39.39 1.02.39 1.41 0L20.29 7.71c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L9 16.17z"></path></svg>
-
-
-                        }
-                    </Check>
-                    :
-                    <PlaceholderCheck />
-                )
+                            }
+                        </Check>
+                        :
+                        <PlaceholderCheck />
+                    ))
             }
         </Container>
     )
