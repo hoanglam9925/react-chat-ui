@@ -84,7 +84,6 @@ export default function Timestamp({
     const [dateSent, setDateSent] = useState<string | undefined>()
 
     useEffect(() => {
-        console.debug({failed});
         function updateDateSent() {
             if (date) {
                 setDateSent(calculateTimeAgo(date))
