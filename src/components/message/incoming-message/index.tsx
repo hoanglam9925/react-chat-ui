@@ -79,6 +79,12 @@ const HeaderContainer = styled.div`
  margin-bottom: 6px;
  `
 
+const DebugInfo = styled.div`
+    font-size: 10px;
+    color: rgba(0,0,0,.36);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+ `
+
 
 
 export default function IncomingMessage({
@@ -90,6 +96,7 @@ export default function IncomingMessage({
     last,
     single,
     created_at,
+    debugInfo
 }: Omit<Props, "type" | "clusterFirstMessage" | "clusterLastMessage" | "seen">) {
 
     const { themeColor } = useContext(MinChatUIContext)
@@ -109,6 +116,17 @@ export default function IncomingMessage({
 
     const backgroundColor = useColorSet("--incoming-message-background-color")
     const timestampColor = useColorSet("--incoming-message-timestamp-color")
+
+    function stringify(obj_from_json: any) {
+        if (typeof obj_from_json !== "object" || obj_from_json === null) {
+            return obj_from_json;
+        }
+        const formattedString = Object.entries(obj_from_json)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('<br>');
+
+        return formattedString;
+    }
 
     return (
         <Wrapper
@@ -158,9 +176,10 @@ export default function IncomingMessage({
                             color={timestampColor}
                             date={created_at}
                         />
+                        { }
                     </MessageContainer>
                 </div>
-
+                {debugInfo && <DebugInfo dangerouslySetInnerHTML={{ __html: stringify(debugInfo) }}></DebugInfo>}
             </TextWrapper>
         </Wrapper>
     )

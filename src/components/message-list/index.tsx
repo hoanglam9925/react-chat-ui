@@ -19,7 +19,7 @@ export type MessageListProps = {
     typingIndicatorContent?: string
     customTypingIndicatorComponent?: React.ReactNode
     customEmptyMessagesComponent?: React.ReactNode
-    customLoaderComponent?: React.ReactNode
+    customLoaderComponent?: React.ReactNode,
 }
 
 
@@ -99,7 +99,7 @@ export default function MessageList({
     showTypingIndicator,
     customTypingIndicatorComponent,
     customLoaderComponent,
-    customEmptyMessagesComponent
+    customEmptyMessagesComponent,
 }: MessageListProps) {
 
     /** keeps track of whether messages was previously empty or whether it has already scrolled */
@@ -140,6 +140,8 @@ export default function MessageList({
             if (detectBottom()) {
                 scrollToBottom()
             }
+
+            scrollToBottom()
 
         }
     }, [messages])
@@ -215,7 +217,7 @@ export default function MessageList({
                                         <p>No messages yet...</p>
                                     </NoMessagesTextContainer>)
                             }
-                            {messages && scrollContainerRef.current && bottomBufferRef.current && messages.map(({ user, text, media, loading: messageLoading, failed: messageFailed, seen, createdAt }, index) => {
+                            {messages && scrollContainerRef.current && bottomBufferRef.current && messages.map(({ user, text, media, loading: messageLoading, failed: messageFailed, seen, createdAt, debugInfo }, index) => {
                                 //determining the type of message to render
                                 let lastClusterMessage, firstClusterMessage, last, single
 
@@ -253,6 +255,7 @@ export default function MessageList({
                                         failed={messageFailed}
                                         clusterFirstMessage={firstClusterMessage}
                                         clusterLastMessage={lastClusterMessage}
+                                        debugInfo={debugInfo}
                                     />
 
                                 } else {
@@ -270,6 +273,7 @@ export default function MessageList({
                                         last={single ? false : last}
                                         single={single}
                                         text={text}
+                                        debugInfo={debugInfo}
                                     />
                                 }
                             })}

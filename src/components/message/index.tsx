@@ -22,7 +22,7 @@ export type Props = {
     single?: boolean
     clusterFirstMessage?: boolean
     clusterLastMessage?: boolean
-
+    debugInfo?: object
 };
 
 
@@ -40,7 +40,8 @@ export default function Message({
     last,
     single,
     clusterFirstMessage,
-    clusterLastMessage
+    clusterLastMessage,
+    debugInfo,
 }: Props) {
 
     return (
@@ -56,6 +57,7 @@ export default function Message({
                 single={single}
                 clusterFirstMessage={clusterFirstMessage}
                 clusterLastMessage={clusterLastMessage}
+                debugInfo={debugInfo}
             />
 
             :
@@ -69,6 +71,7 @@ export default function Message({
                 showHeader={showHeader}
                 last={last}
                 single={single}
+                debugInfo={debugInfo}
             />
 
     )

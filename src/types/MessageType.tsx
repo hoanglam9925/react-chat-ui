@@ -16,6 +16,7 @@ type MessageType = {
   seen?: boolean
   loading?: boolean
   failed?: boolean
+  debugInfo?: object
 }
 
 export default MessageType

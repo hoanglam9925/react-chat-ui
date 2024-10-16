@@ -45,8 +45,12 @@ export const Background = styled.div<{
 `
 
 
-
-
+const DebugInfo = styled.div`
+    font-size: 10px;
+    margin-left: 10px;
+    color: rgba(0,0,0,.36);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+ `
 
 
 export default function MyMessage({
@@ -59,7 +63,8 @@ export default function MyMessage({
     clusterFirstMessage,
     clusterLastMessage,
     created_at,
-    seen
+    seen,
+    debugInfo
 }: Omit<Props, "showHeader" | "showAvatar" | "type">) {
 
     const { themeColor } = useContext(MinChatUIContext)
@@ -72,7 +77,16 @@ export default function MyMessage({
     const linkColor = useColorSet("--outgoing-message-link-color")
 
 
+    function stringify(obj_from_json: any) {
+        if (typeof obj_from_json !== "object" || obj_from_json === null) {
+            return obj_from_json;
+        }
+        const formattedString = Object.entries(obj_from_json)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('<br>');
 
+        return formattedString;
+    }
 
 
 
@@ -117,7 +131,7 @@ export default function MyMessage({
                         loading={loading} />
 
                 </Container>
-
+                {debugInfo && <DebugInfo dangerouslySetInnerHTML={{ __html: stringify(debugInfo) }}></DebugInfo>}
             </div>
         </Wrapper>
     )
