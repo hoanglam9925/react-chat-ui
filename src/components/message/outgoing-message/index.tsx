@@ -23,7 +23,7 @@ export const Wrapper = styled.div<{ firstMessage?: boolean, lastMessage?: boolea
 
 
 export const Container = styled.div`
-max-width:272px;
+max-width:40vw;
 min-width:80px;
 margin-left: 10px;
 justify-content:flex-end;
