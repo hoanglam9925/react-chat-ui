@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react'
 import Message from '../message'
 import styled from 'styled-components'
@@ -7,6 +8,7 @@ import MessageType from '../../types/MessageType'
 import TypingIndicator from '../typing-indicator'
 import MessageListBackground from '../message-list-background'
 import useColorSet from '../../hooks/useColorSet'
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 export type MessageListProps = {
     themeColor?: string
@@ -109,8 +111,57 @@ export default function MessageList({
     const bottomBufferRef = useRef<any>()
     const scrollContainerRef = useRef<any>()
 
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasMoreMessages, setHasMoreMessages] = useState({
+        top: false,
+        bottom: false,
+    });
+
     const { detectBottom, detectTop } = useDetectScrollPosition(scrollContainerRef)
 
+    const topRef = useRef(null);
+    const bottomRef = useRef(null);
+    // const scrollRef = useRef(null);
+
+    const parentRef = useRef(null);
+
+    const rowVirtualizer = useVirtualizer({
+        count: messages?.length || 0,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 35,
+        overscan: 5,
+    });
+
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    if (entry.target.id === "top" && hasMoreMessages.top && !isLoading) {
+                        onScrollToTop && onScrollToTop();
+                        // fetchData();
+                    } else if (
+                        entry.target.id === "bottom" &&
+                        hasMoreMessages.bottom &&
+                        !isLoading
+                    ) {
+                        
+                        // fetchData();
+                    }
+                }
+            });
+        });
+
+        if (topRef.current) {
+            observer.observe(topRef.current);
+        }
+        if (bottomRef.current) {
+            observer.observe(bottomRef.current);
+        }
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [hasMoreMessages, hasMoreMessages.top, hasMoreMessages.bottom, isLoading]);
 
     useEffect(() => {
         //detecting when the scroll view is first rendered and messages have rendered then you can scroll to the bottom
@@ -198,8 +249,48 @@ export default function MessageList({
                     </LoadingContainer>
                     :
                     <>
+                        <div
+                            ref={parentRef}
+                            className="List"
+                            style={{
+                                height: `500px`,
+                                width: `500px`,
+                                overflow: "auto",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    height: `${rowVirtualizer.getTotalSize()}px`,
+                                    width: "100%",
+                                    position: "relative",
+                                }}
+                            >
+                                <div id="bottom" ref={bottomRef} />
 
-                        <ScrollContainer
+                                {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+                                    <div
+                                        id={`item-${virtualRow.index}`}
+                                        key={virtualRow.index}
+                                        className={
+                                            virtualRow.index % 2 ? "ListItemOdd" : "ListItemEven"
+                                        }
+                                        style={{
+                                            position: "absolute",
+                                            top: 0,
+                                            left: 0,
+                                            width: "100%",
+                                            height: `${virtualRow.size}px`,
+                                            transform: `translateY(${virtualRow.start}px)`,
+                                        }}
+                                    >
+                                        <div className="list">"quotes[virtualRow.index].author"</div>
+                                    </div>
+                                ))}
+                                <div id="top" ref={topRef} />
+                            </div>
+                        </div>
+
+                        {/* <ScrollContainer
                             onScroll={() => {
                                 //detect when scrolled to top
                                 if (detectTop()) {
@@ -286,11 +377,10 @@ export default function MessageList({
                                         themeColor={themeColor} />
                             )}
 
-                            {/* bottom buffer */}
                             <div>
                                 <Buffer ref={bottomBufferRef} />
                             </div>
-                        </ScrollContainer>
+                        </ScrollContainer> */}
                     </>
 
                 }
