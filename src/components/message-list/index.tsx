@@ -1,31 +1,30 @@
-// @ts-nocheck
-import React, { useEffect, useRef, useState } from 'react';
-import Message from '../message';
-import styled from 'styled-components';
-import Loading from '../loading';
-import useDetectScrollPosition from '../../hooks/useDetectScrollPosition';
-import MessageType from '../../types/MessageType';
-import TypingIndicator from '../typing-indicator';
-import MessageListBackground from '../message-list-background';
-import useColorSet from '../../hooks/useColorSet';
-import FlatList from 'flatlist-react';
+import React, { useEffect, useRef, useState } from 'react'
+import Message from '../message'
+import styled from 'styled-components'
+import Loading from '../loading'
+import useDetectScrollPosition from '../../hooks/useDetectScrollPosition'
+import MessageType from '../../types/MessageType'
+import TypingIndicator from '../typing-indicator'
+import MessageListBackground from '../message-list-background'
+import useColorSet from '../../hooks/useColorSet'
+import FlatList from 'flatlist-react'
 
 export type MessageListProps = {
-    themeColor?: string;
-    messages?: MessageType[];
-    currentUserId?: string;
-    loading?: boolean;
-    onScrollToTop?: () => void;
-    mobileView?: boolean;
-    showTypingIndicator?: boolean;
-    typingIndicatorContent?: string;
-    customTypingIndicatorComponent?: React.ReactNode;
-    customEmptyMessagesComponent?: React.ReactNode;
-    customLoaderComponent?: React.ReactNode;
-};
+    themeColor?: string
+    messages?: MessageType[]
+    currentUserId?: string
+    loading?: boolean
+    onScrollToTop?: () => void
+    mobileView?: boolean
+    showTypingIndicator?: boolean
+    typingIndicatorContent?: string
+    customTypingIndicatorComponent?: React.ReactNode
+    customEmptyMessagesComponent?: React.ReactNode
+    customLoaderComponent?: React.ReactNode
+}
 
 const MessageList: React.FC<MessageListProps> = ({
-    messages = [],
+    messages = [], // Default to empty array if undefined
     currentUserId,
     loading = false,
     onScrollToTop,
@@ -64,7 +63,7 @@ const MessageList: React.FC<MessageListProps> = ({
         }
     }, [messages]);
 
-    const noMessageTextColor = useColorSet('--no-message-text-color');
+    const noMessageTextColor = useColorSet("--no-message-text-color");
 
     const scrollToBottom = () => {
         if (bottomBufferRef.current && scrollContainerRef.current) {
@@ -76,18 +75,10 @@ const MessageList: React.FC<MessageListProps> = ({
             const scrollOffset = childRect.top + container.scrollTop - parentRect.top;
 
             if (container.scrollBy) {
-                container.scrollBy({ top: scrollOffset, behavior: 'auto' });
+                container.scrollBy({ top: scrollOffset, behavior: "auto" });
             } else {
                 container.scrollTop = scrollOffset;
             }
-        }
-    };
-
-    // Attach onScroll directly to FlatList
-    const handleScroll = () => {
-        console.debug("hihihi");
-        if (detectTop()) {
-            onScrollToTop && onScrollToTop();
         }
     };
 
@@ -101,44 +92,34 @@ const MessageList: React.FC<MessageListProps> = ({
                         {customLoaderComponent ? customLoaderComponent : <Loading themeColor={themeColor} />}
                     </LoadingContainer>
                 ) : (
-                    <ScrollableFlatList
-                        list={messages.map((message, index) => ({ item: message, index }))}
+                    <FlatList
+                        list={messages.map((message, index) => ({ item: message, index }))} // Map messages to required format
                         ref={scrollContainerRef}
-                        loadMoreItems={handleScroll}
-                        hasMoreItems={true}
-                        srollToTopOffset={50}
-                        renderWhenEmpty={() =>
-                            customEmptyMessagesComponent ? (
-                                customEmptyMessagesComponent as React.ReactElement
-                            ) : (
+                        renderWhenEmpty={() => {
+                            if (customEmptyMessagesComponent) return customEmptyMessagesComponent as React.ReactElement;
+                            return (
                                 <NoMessagesTextContainer color={noMessageTextColor}>
                                     <p>No messages yet...</p>
                                 </NoMessagesTextContainer>
-                            )
+                            );
+                        }
+
                         }
                         renderItem={({ item, index }: { item: MessageType; index: number }) => {
                             const { user, text, media, loading: messageLoading, failed: messageFailed, seen, createdAt, debugInfo } = item;
-                            let lastClusterMessage = false,
-                                firstClusterMessage = false,
-                                last = false,
-                                single = false;
-
+                            
+                            let lastClusterMessage = false, firstClusterMessage = false, last = false, single = false;
+                    
                             // Determine message cluster positions
                             if (index === 0) firstClusterMessage = true;
                             if (index > 0 && messages[index - 1].user.id !== user.id) firstClusterMessage = true;
-                            if (index === messages.length - 1) {
-                                lastClusterMessage = true;
-                                last = true;
-                            }
-                            if (index < messages.length - 1 && messages[index + 1].user.id !== user.id) {
-                                lastClusterMessage = true;
-                                last = true;
-                            }
+                            if (index === messages.length - 1) { lastClusterMessage = true; last = true; }
+                            if (index < messages.length - 1 && messages[index + 1].user.id !== user.id) { lastClusterMessage = true; last = true; }
                             if (index < messages.length - 1 && index > 0 && messages[index + 1].user.id !== user.id && messages[index - 1].user.id !== user.id) single = true;
                             if (index === 0 && index < messages.length - 1 && messages[index + 1].user.id !== user.id) single = true;
                             if (index === messages.length - 1 && index > 0 && messages[index - 1].user.id !== user.id) single = true;
                             if (messages.length === 1) single = true;
-
+                    
                             // Render outgoing message
                             if (user.id === (currentUserId && currentUserId.toLowerCase())) {
                                 return (
@@ -178,14 +159,20 @@ const MessageList: React.FC<MessageListProps> = ({
                                 );
                             }
                         }}
+                        onScroll={() => {
+                            if (detectTop()) {
+                                onScrollToTop && onScrollToTop();
+                            }
+                        }}
                         footer={() => (
                             <>
-                                {showTypingIndicator &&
-                                    (customTypingIndicatorComponent ? (
+                                {showTypingIndicator && (
+                                    customTypingIndicatorComponent ? (
                                         customTypingIndicatorComponent
                                     ) : (
                                         <TypingIndicator content={typingIndicatorContent} themeColor={themeColor} />
-                                    ))}
+                                    )
+                                )}
                                 <Buffer ref={bottomBufferRef} />
                             </>
                         )}
@@ -194,7 +181,7 @@ const MessageList: React.FC<MessageListProps> = ({
             </InnerContainer>
         </Container>
     );
-};
+}
 
 export default MessageList;
 
@@ -206,25 +193,15 @@ const Container = styled.div`
     overflow-y: hidden;
     padding-left: 0px;
     padding-right: 12px;
-    display: flex;
-    flex-direction: column;
 `;
 
 const InnerContainer = styled.div`
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-`;
-
-const ScrollableFlatList = styled(FlatList)`
-    flex: 1;
-    overflow-y: auto;
+    height: 100%;
 `;
 
 const NoMessagesTextContainer = styled.div<{ color?: string }>`
     color: ${({ color }) => color || 'rgba(0,0,0,.36)'};
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 14px;
     display: flex;
     justify-content: center;
