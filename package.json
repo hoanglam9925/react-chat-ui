@@ -72,7 +72,6 @@
   },
   "dependencies": {
     "@types/styled-components": "^5.1.28",
-    "flatlist-react": "^1.5.14",
     "postcss": "^8.4.31",
     "rollup-plugin-import-css": "^3.3.4",
     "rollup-plugin-postcss": "^4.0.2",
