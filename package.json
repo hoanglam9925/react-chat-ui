@@ -19,7 +19,8 @@
     "size": "size-limit",
     "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "build-laravel": "tsdx build && rm -rf ~/Desktop/www/chatbot-cms/node_modules/@minchat/react-chat-ui/dist && mv dist ~/Desktop/www/chatbot-cms/node_modules/@minchat/react-chat-ui/ && cd ~/Desktop/www/chatbot-cms && yarn dev"
   },
   "peerDependencies": {
     "react": ">=16"
