@@ -7083,6 +7083,11 @@ flat-cache@^3.0.4:
     keyv "^4.5.3"
     rimraf "^3.0.2"
 
+flatlist-react@^1.5.14:
+  version "1.5.14"
+  resolved "https://registry.yarnpkg.com/flatlist-react/-/flatlist-react-1.5.14.tgz#877f129e0c298e79e693f91ed4f2b55d78a484ce"
+  integrity sha512-TxwnFJk06Ic637L6GexiFFJrqxcBxZL5nnZTI/yDZZ5mYN6ysLiiz9Lz6ksEmF8e63DuDrR5l/cGrz/JuUh/MA==
+
 flatted@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-2.0.2.tgz#4575b21e2bcee7434aa9be662f4b7b5f9c2b5138"
