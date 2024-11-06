@@ -124,10 +124,8 @@ export default function ConversationList({
         loading={loading}
         onScroll={() => {
           //detect when scrolled to bottom
-          const bottom =
-            scrollContainerRef.current.scrollHeight -
-            scrollContainerRef.current.scrollTop ===
-            scrollContainerRef.current.clientHeight;
+          // Some error not allowing to scroll to bottom so added 15px
+          const bottom = scrollContainerRef.current.scrollHeight - scrollContainerRef.current.scrollTop < scrollContainerRef.current.clientHeight + 15;
           if (bottom) {
             onScrollToBottom && onScrollToBottom();
           }
