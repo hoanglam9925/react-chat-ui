@@ -20,6 +20,7 @@ export type MessageListProps = {
     customTypingIndicatorComponent?: React.ReactNode
     customEmptyMessagesComponent?: React.ReactNode
     customLoaderComponent?: React.ReactNode,
+    changeConversation?: boolean
 }
 
 
@@ -100,6 +101,7 @@ export default function MessageList({
     customTypingIndicatorComponent,
     customLoaderComponent,
     customEmptyMessagesComponent,
+    changeConversation
 }: MessageListProps) {
 
     /** keeps track of whether messages was previously empty or whether it has already scrolled */
@@ -108,9 +110,53 @@ export default function MessageList({
 
     const bottomBufferRef = useRef<any>()
     const scrollContainerRef = useRef<any>()
+    const previousScrollTop = useRef<any>()
+    const previousScrollHeight = useRef<any>()
 
     const { detectBottom, detectTop } = useDetectScrollPosition(scrollContainerRef)
 
+    const isFirstRender = useRef(true);
+
+    const preserveScrollPosition = () => {
+        if (!scrollContainerRef.current) return;
+
+        const scrollContainer = scrollContainerRef.current;
+
+        if (previousScrollHeight.current == null) {
+            previousScrollHeight.current = scrollContainer.scrollHeight;
+        }
+
+        if (previousScrollTop.current == null) {
+            previousScrollTop.current = scrollContainer.scrollTop;
+        }
+
+        setTimeout(() => {
+            const newScrollHeight = scrollContainer.scrollHeight;
+
+            if (isFirstRender.current) {
+                // Scroll to the bottom on first render
+                scrollContainer.scrollTop = newScrollHeight;
+                isFirstRender.current = false;
+            } else {
+                // Maintain relative scroll position on subsequent renders
+                // 0.3 is 30% of the way down the page bottom is max height, 0 is top -> 30% is a magic number :D
+                scrollContainer.scrollTop = previousScrollHeight.current * 0.3;
+            }
+
+            // Update refs after adjustment
+            previousScrollTop.current = scrollContainer.scrollTop;
+            previousScrollHeight.current = newScrollHeight;
+
+        }, 10);
+    };
+
+    useEffect(() => {
+        if (changeConversation) {
+            scrollToBottom()
+            return;
+        } 
+        preserveScrollPosition();
+    }, [messages]);
 
     useEffect(() => {
         //detecting when the scroll view is first rendered and messages have rendered then you can scroll to the bottom
@@ -140,12 +186,8 @@ export default function MessageList({
             if (detectBottom()) {
                 scrollToBottom()
             }
-
-            scrollToBottom()
-
         }
     }, [messages])
-
 
     useEffect(() => {
         //TODO when closer to the bottom of the scroll bar and a new message arrives then scroll to bottom
