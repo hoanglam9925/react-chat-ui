@@ -29,6 +29,7 @@ margin-left: 10px;
 justify-content:flex-end;
 align-items:flex-end;
 gap:10px;
+white-space: pre-wrap;
 position:relative;
 box-sizing: border-box;
 `
