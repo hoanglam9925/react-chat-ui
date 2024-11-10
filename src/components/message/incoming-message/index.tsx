@@ -28,7 +28,6 @@ const DPContainer = styled.div`
     height: 32px;
     margin-left: 10px;
     box-sizing: border-box;
-    user-select: none;
 
 `
 const DisplayPicture = styled.img`
@@ -56,7 +55,6 @@ line-height:auto;
 color:${({ color }) => color || "#4b5563"};
 font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 font-weight: 500;
-user-select: none;
 
 `
 

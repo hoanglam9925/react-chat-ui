@@ -75,8 +75,6 @@ const NoMessagesTextContainer = styled.div<{
     justify-content: center;
     align-items: center;
     height: 100%;
-    user-select: none;
-
 `
 
 const LoadingContainer = styled.div`

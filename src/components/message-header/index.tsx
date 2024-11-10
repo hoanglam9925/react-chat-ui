@@ -56,7 +56,6 @@ const ChatTitle = styled.div<{
     font-size:16px;
     line-height:auto;
     color:${({ color }) => color || '#000000'};
-    user-select: none;
     position: relative;
     width: 100%;
     font-weight: 500;
@@ -72,7 +71,6 @@ const LastSeenText = styled.div<{
     font-size:10px;
     line-height:auto;
     color:${({ color }) => color || 'rgb(107 114 128)'};
-    user-select: none;
     position: relative;
     width: 100%;
     font-weight: 100;

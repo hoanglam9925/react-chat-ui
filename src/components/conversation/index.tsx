@@ -27,7 +27,6 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   box-sizing: border-box;
-user-select: none;
 
 `;
 const ContentContainer = styled.div`

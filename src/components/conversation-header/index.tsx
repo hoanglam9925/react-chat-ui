@@ -44,7 +44,6 @@ color:${({ color }) => color || '#000000'};
 position:absolute;
 width: 100%;
 font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-user-select: none;
 
 `
 const HeaderPlaceholder = styled.div`

@@ -66,7 +66,6 @@ position: relative;
 justify-content: end;
 align-items: center;
 // margin-top: -8px;
-user-select: none;
 
 `
 
