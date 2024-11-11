@@ -95,7 +95,8 @@ export default function MediaContent({
                         borderCss={(() => getBorderCss({
                             type: messageType,
                             last,
-                            single
+                            single,
+                            set_fixed_height: true
                         }))()}
                         src={url}
                         alt={url} />
@@ -112,7 +113,8 @@ export default function MediaContent({
                             borderCss={(() => getBorderCss({
                                 type: messageType,
                                 last,
-                                single
+                                single,
+                                set_fixed_height: true
                             }))()}
                         >
                             <source src={url} type="video/mp4" />
