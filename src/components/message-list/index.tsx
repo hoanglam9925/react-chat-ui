@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
+// @ts-nocheck
+import React, { useEffect, useRef, useState, useLayoutEffect } from 'react'
 import Message from '../message'
 import styled from 'styled-components'
 import Loading from '../loading'
@@ -110,47 +111,118 @@ export default function MessageList({
     const scrollContainerRef = useRef<any>()
     const previousScrollTop = useRef<any>()
     const previousScrollHeight = useRef<any>()
+    const deltaHeightRef = useRef<any>()
 
     const { detectBottom, detectTop } = useDetectScrollPosition(scrollContainerRef)
 
     const isFirstRender = useRef(true);
 
+    // const preserveScrollPosition = () => {
+    //     if (!scrollContainerRef.current) return;
+
+    //     const scrollContainer = scrollContainerRef.current;
+
+    //     if (previousScrollHeight.current == null) {
+    //         previousScrollHeight.current = scrollContainer.scrollHeight;
+    //     }
+
+    //     if (previousScrollTop.current == null) {
+    //         previousScrollTop.current = scrollContainer.scrollTop;
+    //     }
+
+    //     setTimeout(() => {
+    //         const newScrollHeight = scrollContainer.scrollHeight;
+
+    //         if (isFirstRender.current) {
+    //             // Scroll to the bottom on first render
+    //             scrollContainer.scrollTop = newScrollHeight;
+    //             isFirstRender.current = false;
+    //         } else {
+    //             // Maintain relative scroll position on subsequent renders
+    //             scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current// + scrollContainerRef.current.clientHeight;
+    //         }
+
+    //         console.debug({newScrollHeight, previousScrollHeight: previousScrollHeight.current, scrollTop: scrollContainer.scrollTop});
+
+    //         // Set a timeout to update refs after adjustment, update immediately causes flicker
+    //         setTimeout(() => {
+    //             // Update refs after adjustment
+    //             previousScrollTop.current = scrollContainer.scrollTop;
+    //             previousScrollHeight.current = newScrollHeight;
+    //         }, 500);
+
+    //     }, 10);
+    // };
+
     const preserveScrollPosition = () => {
         if (!scrollContainerRef.current) return;
-
+    
         const scrollContainer = scrollContainerRef.current;
 
-        if (previousScrollHeight.current == null) {
-            previousScrollHeight.current = scrollContainer.scrollHeight;
-        }
-
-        if (previousScrollTop.current == null) {
-            previousScrollTop.current = scrollContainer.scrollTop;
-        }
-
-        setTimeout(() => {
+        // if (previousScrollHeight.current == null) {
+        //     previousScrollHeight.current = scrollContainer.scrollHeight;
+        // }
+        // if (previousScrollTop.current == null) {
+        //     previousScrollTop.current = scrollContainer.scrollTop
+        // }
+    
+        const adjustScrollPosition = () => {
             const newScrollHeight = scrollContainer.scrollHeight;
-
+    
             if (isFirstRender.current) {
                 // Scroll to the bottom on first render
                 scrollContainer.scrollTop = newScrollHeight;
                 isFirstRender.current = false;
             } else {
-                // Maintain relative scroll position on subsequent renders
-                // 0.3 is 30% of the way down the page bottom is max height, 0 is top -> 30% is a magic number :D
-                scrollContainer.scrollTop = previousScrollHeight.current * 0.3;
+                // Maintain relative scroll position
+                scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current;
+                    // scrollContainer.scrollTop + (newScrollHeight - previousScrollHeight.current);
             }
-
-            // Update refs after adjustment
-            previousScrollTop.current = scrollContainer.scrollTop;
-            previousScrollHeight.current = newScrollHeight;
-
+    
+            // Update refs timeout
+            setTimeout(() => {
+                previousScrollTop.current = scrollContainer.scrollTop;
+                previousScrollHeight.current = scrollContainer.scrollHeight;
+            }, 10);
+    
+        };
+    
+        setTimeout(() => {
+            adjustScrollPosition();
+    
+            // Observe dynamic content changes, e.g., images loading
+            const observer = new MutationObserver(() => {
+                adjustScrollPosition();
+            });
+    
+            observer.observe(scrollContainer, { childList: true, subtree: true });
+    
+            // Disconnect the observer after a short delay to prevent performance issues
+            setTimeout(() => {
+                observer.disconnect();
+            }, 1000);
         }, 10);
     };
+
+    useLayoutEffect(() => {
+        const scrollContainer = scrollContainerRef.current;
+        if (!scrollContainer) return;
+
+        if (previousScrollHeight.current == null) {
+            previousScrollHeight.current = scrollContainer.scrollHeight;
+        }
+        if (previousScrollTop.current == null) {
+            previousScrollTop.current = scrollContainer.scrollTop
+        }
+    }, [])
 
     useEffect(() => {
         if (changeConversation) {
             scrollToBottom()
+            setTimeout(() => {
+                previousScrollHeight.current = scrollContainerRef.current.scrollHeight;
+                previousScrollTop.current = scrollContainerRef.current.scrollTop;
+            }, 100);
             return;
         } 
         preserveScrollPosition();
@@ -257,7 +329,7 @@ export default function MessageList({
                                         <p>No messages yet...</p>
                                     </NoMessagesTextContainer>)
                             }
-                            {messages && scrollContainerRef.current && bottomBufferRef.current && messages.map(({ user, text, media, loading: messageLoading, failed: messageFailed, seen, createdAt, debugInfo }, index) => {
+                            {messages && scrollContainerRef.current && bottomBufferRef.current && messages.map(({ user, text, media, loading: messageLoading, failed: messageFailed, seen, createdAt, debugInfo, ...message }, index) => {
                                 //determining the type of message to render
                                 let lastClusterMessage, firstClusterMessage, last, single
 
@@ -278,11 +350,15 @@ export default function MessageList({
                                 //if the messages array contains only 1 message then single incoming is true
                                 if (messages.length === 1) { single = true }
 
+                                let key = index;
+                                if (message.messageId) {
+                                    key = message.messageId
+                                }
 
                                 if (user.id == (currentUserId && currentUserId.toLowerCase())) {
 
                                     // my message
-                                    return <Message key={index}
+                                    return <Message key={key}
                                         type="outgoing"
                                         last={single ? false : last}
                                         single={single}
@@ -303,7 +379,7 @@ export default function MessageList({
                                     // other message
                                     return <Message
                                         type='incoming'
-                                        key={index}
+                                        key={key}
                                         user={user}
                                         media={media}
                                         seen={seen}
