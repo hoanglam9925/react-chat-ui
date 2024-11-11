@@ -4,12 +4,14 @@ type Props = {
     type: "incoming" | "outgoing",
     last?: boolean,
     single?: boolean,
+    set_fixed_height?: boolean,
 
 }
 export const getBorderCss = ({
     type,
     last,
-    single
+    single,
+    set_fixed_height
 }: Props) => {
 
     let borderTopLeft, borderTopRight, borderBottomLeft, borderBottomRight
@@ -31,6 +33,7 @@ export const getBorderCss = ({
     border-top-right-radius: ${borderTopRight ? "8px" : "2px"};
     border-bottom-left-radius: ${borderBottomLeft ? "8px" : "2px"};
     border-bottom-right-radius: ${borderBottomRight ? "8px" : "2px"};
+    height: ${set_fixed_height ? "500px" : null};    
     `
 
 }
