@@ -105,6 +105,8 @@ export default function MessageList({
 
     /** keeps track of whether messages was previously empty or whether it has already scrolled */
     const [messagesWasEmpty, setMessagesWasEmpty] = useState(true)
+    const [isBottom, setIsBottom] = useState(false)
+
     const containerRef = useRef<any>()
 
     const bottomBufferRef = useRef<any>()
@@ -156,7 +158,7 @@ export default function MessageList({
 
     const preserveScrollPosition = () => {
         if (!scrollContainerRef.current) return;
-    
+
         const scrollContainer = scrollContainerRef.current;
 
         // if (previousScrollHeight.current == null) {
@@ -165,10 +167,10 @@ export default function MessageList({
         // if (previousScrollTop.current == null) {
         //     previousScrollTop.current = scrollContainer.scrollTop
         // }
-    
+
         const adjustScrollPosition = () => {
             const newScrollHeight = scrollContainer.scrollHeight;
-    
+
             if (isFirstRender.current) {
                 // Scroll to the bottom on first render
                 scrollContainer.scrollTop = newScrollHeight;
@@ -176,27 +178,27 @@ export default function MessageList({
             } else {
                 // Maintain relative scroll position
                 scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current;
-                    // scrollContainer.scrollTop + (newScrollHeight - previousScrollHeight.current);
+                // scrollContainer.scrollTop + (newScrollHeight - previousScrollHeight.current);
             }
-    
+
             // Update refs timeout
             setTimeout(() => {
                 previousScrollTop.current = scrollContainer.scrollTop;
                 previousScrollHeight.current = scrollContainer.scrollHeight;
             }, 10);
-    
+
         };
-    
+
         setTimeout(() => {
             adjustScrollPosition();
-    
+
             // Observe dynamic content changes, e.g., images loading
             const observer = new MutationObserver(() => {
                 adjustScrollPosition();
             });
-    
+
             observer.observe(scrollContainer, { childList: true, subtree: true });
-    
+
             // Disconnect the observer after a short delay to prevent performance issues
             setTimeout(() => {
                 observer.disconnect();
@@ -217,18 +219,6 @@ export default function MessageList({
     }, [])
 
     useEffect(() => {
-        if (changeConversation) {
-            scrollToBottom()
-            setTimeout(() => {
-                previousScrollHeight.current = scrollContainerRef.current.scrollHeight;
-                previousScrollTop.current = scrollContainerRef.current.scrollTop;
-            }, 100);
-            return;
-        } 
-        preserveScrollPosition();
-    }, [messages]);
-
-    useEffect(() => {
         //detecting when the scroll view is first rendered and messages have rendered then you can scroll to the bottom
         if (bottomBufferRef.current && scrollContainerRef.current && !messagesWasEmpty) {
             scrollToBottom()
@@ -236,6 +226,9 @@ export default function MessageList({
 
     }, [messagesWasEmpty, bottomBufferRef.current, scrollContainerRef.current])
 
+    useEffect(() => {
+        scrollToBottom()
+    }, [])
 
     useEffect(() => {
         if (!messages) {
@@ -256,7 +249,22 @@ export default function MessageList({
             if (detectBottom()) {
                 scrollToBottom()
             }
+
+            // If current is bottom, when new message arrives, scroll to bottom
+            if (isBottom) {
+                scrollToBottom()
+            }
         }
+
+        if (changeConversation) {
+            scrollToBottom()
+            setTimeout(() => {
+                previousScrollHeight.current = scrollContainerRef.current.scrollHeight;
+                previousScrollTop.current = scrollContainerRef.current.scrollTop;
+            }, 100);
+            return;
+        }
+        // preserveScrollPosition();
     }, [messages])
 
     useEffect(() => {
@@ -285,6 +293,8 @@ export default function MessageList({
             } else {
                 container.scrollTop = scrollOffset;
             }
+
+            setIsBottom(true);
         }
     }
 
@@ -316,6 +326,13 @@ export default function MessageList({
                                 //detect when scrolled to top
                                 if (detectTop()) {
                                     onScrollToTop && onScrollToTop()
+                                    preserveScrollPosition();
+                                }
+
+                                if (detectBottom()) {
+                                    setIsBottom(true)
+                                } else {
+                                    setIsBottom(false)
                                 }
                             }}
                             ref={scrollContainerRef}>
