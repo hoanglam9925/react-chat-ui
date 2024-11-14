@@ -1,7 +1,7 @@
 import UserType from "./UserType"
 
 export interface MediaType {
-  type: "image" | "video" | "file" | "gif"
+  type: "image" | "video" | "file" | "gif" | "audio"
   url: string
   size?: string
   name?: string

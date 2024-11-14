@@ -77,6 +77,10 @@ const Video = styled.video<{
 
 `
 
+const Audio = styled.audio`
+    filter: sepia(20%) saturate(70%) grayscale(1) contrast(99%) invert(12%);    
+`
+
 
 export default function MediaContent({
     type,
@@ -103,7 +107,11 @@ export default function MediaContent({
                 </ImageContainer>
             }
 
-
+            {type === 'audio' &&
+                <Audio controls>
+                    <source src={url}/>
+                </Audio>
+            }
 
             {(type === 'file' || type === 'video') &&
                 <div style={{ position: "relative", width: "100%" }}>

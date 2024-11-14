@@ -115,6 +115,8 @@ export default function IncomingMessage({
     const backgroundColor = useColorSet("--incoming-message-background-color")
     const timestampColor = useColorSet("--incoming-message-timestamp-color")
 
+    const customBackgroundColor = media?.type == 'audio' ? 'transparent' : backgroundColor
+
     function stringify(obj_from_json: any) {
         if (typeof obj_from_json !== "object" || obj_from_json === null) {
             return obj_from_json;
@@ -158,7 +160,7 @@ export default function IncomingMessage({
                                 single
                             }))()}
                             backgroundColor={backgroundColor}
-                            bgColor={backgroundColor || themeColor} />
+                            bgColor={backgroundColor || customBackgroundColor || themeColor} />
 
                         {media ? <MediaContent
                             last={last}
