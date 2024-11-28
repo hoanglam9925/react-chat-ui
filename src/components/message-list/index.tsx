@@ -121,56 +121,10 @@ export default function MessageList({
 
     const observeRef = useRef<any>();
 
-    // const preserveScrollPosition = () => {
-    //     if (!scrollContainerRef.current) return;
-
-    //     const scrollContainer = scrollContainerRef.current;
-
-    //     if (previousScrollHeight.current == null) {
-    //         previousScrollHeight.current = scrollContainer.scrollHeight;
-    //     }
-
-    //     if (previousScrollTop.current == null) {
-    //         previousScrollTop.current = scrollContainer.scrollTop;
-    //     }
-
-    //     setTimeout(() => {
-    //         const newScrollHeight = scrollContainer.scrollHeight;
-
-    //         if (isFirstRender.current) {
-    //             // Scroll to the bottom on first render
-    //             scrollContainer.scrollTop = newScrollHeight;
-    //             isFirstRender.current = false;
-    //         } else {
-    //             // Maintain relative scroll position on subsequent renders
-    //             scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current// + scrollContainerRef.current.clientHeight;
-    //         }
-
-    //         console.debug({newScrollHeight, previousScrollHeight: previousScrollHeight.current, scrollTop: scrollContainer.scrollTop});
-
-    //         // Set a timeout to update refs after adjustment, update immediately causes flicker
-    //         setTimeout(() => {
-    //             // Update refs after adjustment
-    //             previousScrollTop.current = scrollContainer.scrollTop;
-    //             previousScrollHeight.current = newScrollHeight;
-    //         }, 500);
-
-    //     }, 10);
-    // };
-
-    const preserveScrollPosition = () => {
-        if (!scrollContainerRef.current) return;
-
-        const scrollContainer = scrollContainerRef.current;
-
-        // if (previousScrollHeight.current == null) {
-        //     previousScrollHeight.current = scrollContainer.scrollHeight;
-        // }
-        // if (previousScrollTop.current == null) {
-        //     previousScrollTop.current = scrollContainer.scrollTop
-        // }
-
+    useEffect(() => {
         const adjustScrollPosition = () => {
+            const scrollContainer = scrollContainerRef.current;
+
             const newScrollHeight = scrollContainer.scrollHeight;
 
             if (isFirstRender.current) {
@@ -187,26 +141,17 @@ export default function MessageList({
             setTimeout(() => {
                 previousScrollTop.current = scrollContainer.scrollTop;
                 previousScrollHeight.current = scrollContainer.scrollHeight;
-            }, 200);
+            }, 50);
 
         };
+        const observeRef = new MutationObserver(adjustScrollPosition);
+        observeRef.observe(scrollContainerRef.current, { childList: true, subtree: true });
 
-        setTimeout(() => {
-            adjustScrollPosition();
+        return () => {
+            observeRef.disconnect(); // Cleanup observer on unmount
+        };
+    }, []);
 
-            // Observe dynamic content changes, e.g., images loading
-            observeRef.current = new MutationObserver(() => {
-                adjustScrollPosition();
-            });
-
-            observeRef.current.observe(scrollContainer, { childList: true, subtree: true });
-
-            // Disconnect the observer after a short delay to prevent performance issues
-            setTimeout(() => {
-                observeRef.current.disconnect();
-            }, 50);
-        }, 10);
-    };
 
     useLayoutEffect(() => {
         const scrollContainer = scrollContainerRef.current;
@@ -268,7 +213,6 @@ export default function MessageList({
                 }, 100);
             }, 50);
         }
-        // preserveScrollPosition();
     }, [messages])
 
     useEffect(() => {
@@ -337,7 +281,6 @@ export default function MessageList({
                                 //detect when scrolled to top
                                 if (detectTop()) {
                                     onScrollToTop && onScrollToTop()
-                                    preserveScrollPosition();
                                 }
 
                                 if (detectBottom()) {
