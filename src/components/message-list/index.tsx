@@ -119,6 +119,8 @@ export default function MessageList({
 
     const isFirstRender = useRef(true);
 
+    const observeRef = useRef<any>();
+
     // const preserveScrollPosition = () => {
     //     if (!scrollContainerRef.current) return;
 
@@ -185,7 +187,7 @@ export default function MessageList({
             setTimeout(() => {
                 previousScrollTop.current = scrollContainer.scrollTop;
                 previousScrollHeight.current = scrollContainer.scrollHeight;
-            }, 10);
+            }, 200);
 
         };
 
@@ -193,16 +195,16 @@ export default function MessageList({
             adjustScrollPosition();
 
             // Observe dynamic content changes, e.g., images loading
-            const observer = new MutationObserver(() => {
+            observeRef.current = new MutationObserver(() => {
                 adjustScrollPosition();
             });
 
-            observer.observe(scrollContainer, { childList: true, subtree: true });
+            observeRef.current.observe(scrollContainer, { childList: true, subtree: true });
 
             // Disconnect the observer after a short delay to prevent performance issues
             setTimeout(() => {
-                observer.disconnect();
-            }, 1000);
+                observeRef.current.disconnect();
+            }, 50);
         }, 10);
     };
 
@@ -257,15 +259,24 @@ export default function MessageList({
         }
 
         if (changeConversation) {
-            scrollToBottom()
+            // Set timeout to wait observeRef to disconnect, other scroll to bottom will not work
             setTimeout(() => {
-                previousScrollHeight.current = scrollContainerRef.current.scrollHeight;
-                previousScrollTop.current = scrollContainerRef.current.scrollTop;
-            }, 100);
-            return;
+                scrollToBottom();
+                setTimeout(() => {
+                    previousScrollHeight.current = scrollContainerRef.current.scrollHeight;
+                    previousScrollTop.current = scrollContainerRef.current.scrollTop;
+                }, 100);
+            }, 50);
         }
         // preserveScrollPosition();
     }, [messages])
+
+    useEffect(() => {
+        // Disconnect observer immediately when changeConversation
+        if (observeRef.current) {
+            observeRef.current.disconnect();
+        }
+    }, [changeConversation])
 
     useEffect(() => {
         //TODO when closer to the bottom of the scroll bar and a new message arrives then scroll to bottom
