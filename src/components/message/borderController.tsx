@@ -33,7 +33,8 @@ export const getBorderCss = ({
     border-top-right-radius: ${borderTopRight ? "8px" : "2px"};
     border-bottom-left-radius: ${borderBottomLeft ? "8px" : "2px"};
     border-bottom-right-radius: ${borderBottomRight ? "8px" : "2px"};
-    height: ${set_fixed_height ? "500px" : null};    
+    height: ${set_fixed_height ? "300px" : null};    
+    object-fit: contain;
     `
 
 }
