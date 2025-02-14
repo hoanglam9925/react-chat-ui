@@ -12,6 +12,7 @@ export interface Props {
   loading?: boolean;
   selectedConversationId?: string;
   onScrollToBottom?: () => void;
+  onScrollToTop?: () => void;
   themeColor?: string;
   mobileView?: boolean;
   /**
@@ -104,6 +105,7 @@ export default function ConversationList({
   onConversationClick,
   selectedConversationId,
   onScrollToBottom,
+  onScrollToTop,
   currentUserId,
   renderCustomConversationitem,
   customLoaderComponent,
@@ -128,6 +130,10 @@ export default function ConversationList({
           const bottom = scrollContainerRef.current.scrollHeight - scrollContainerRef.current.scrollTop < scrollContainerRef.current.clientHeight + 15;
           if (bottom) {
             onScrollToBottom && onScrollToBottom();
+          }
+          const top = scrollContainerRef.current.scrollTop === 0;
+          if (top) {
+            onScrollToTop && onScrollToTop();
           }
         }}
         ref={scrollContainerRef}
