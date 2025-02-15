@@ -1,10 +1,12 @@
-import React, { useContext, useRef } from 'react';
+// @ts-nocheck
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Loading from '../loading';
 import ConversationType from '../../types/ConversationType';
 import Conversation from '../conversation';
 import useColorSet from '../../hooks/useColorSet';
 import MinChatUIContext from '../../contexts/MinChatUIContext';
+import useDetectScrollPosition from '../../hooks/useDetectScrollPosition';
 
 export interface Props {
   onConversationClick?: (index: number) => void;
@@ -115,8 +117,70 @@ export default function ConversationList({
 
   const backgroundColor = useColorSet("--chatlist-background-color")
   const noConversation = useColorSet("--no-conversation-text-color")
-
   const { themeColor } = useContext(MinChatUIContext)
+
+  // const { detectBottom, detectTop } = useDetectScrollPosition(scrollContainerRef)
+  const [isScrollingTop, setIsScrollingTop] = useState(false);
+  const isScrollingTopRef = useRef(isScrollingTop);
+
+  const previousScrollTop = useRef<any>()
+  const previousScrollHeight = useRef<any>()
+
+  const isFirstRender = useRef(true);
+  const observeRef = useRef<any>();
+
+  useEffect(() => {
+    isScrollingTopRef.current = isScrollingTop;
+  }, [isScrollingTop])
+
+  useEffect(() => {
+    const adjustScrollPosition = () => {
+      const scrollContainer = scrollContainerRef.current;
+
+      const newScrollHeight = scrollContainer.scrollHeight;
+
+      if (isFirstRender.current) {
+        // Scroll to the bottom on first render
+        // scrollContainer.scrollTop = newScrollHeight;
+        scrollContainer.scrollTop = 0;
+        isFirstRender.current = false;
+      } else {
+        if (isScrollingTopRef.current) {
+          // Maintain relative scroll position
+          scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current;
+        }
+        // Maintain relative scroll position
+        // scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current;
+        // scrollContainer.scrollTop + (newScrollHeight - previousScrollHeight.current);
+      }
+
+      // Update refs timeout
+      setTimeout(() => {
+        previousScrollTop.current = scrollContainer.scrollTop;
+        previousScrollHeight.current = scrollContainer.scrollHeight;
+      }, 50);
+
+    };
+    const observeRef = new MutationObserver(adjustScrollPosition);
+    observeRef.observe(scrollContainerRef.current, { childList: true, subtree: true });
+
+    return () => {
+      observeRef.disconnect(); // Cleanup observer on unmount
+    };
+  }, []);
+
+
+  useLayoutEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    if (previousScrollHeight.current == null) {
+      previousScrollHeight.current = scrollContainer.scrollHeight;
+    }
+    if (previousScrollTop.current == null) {
+      previousScrollTop.current = scrollContainer.scrollTop
+    }
+  }, [])
 
 
   return (
@@ -133,7 +197,11 @@ export default function ConversationList({
           }
           const top = scrollContainerRef.current.scrollTop === 0;
           if (top) {
+            setIsScrollingTop(true);
             onScrollToTop && onScrollToTop();
+            setTimeout(() => {
+              setIsScrollingTop(false);
+            }, 1000);
           }
         }}
         ref={scrollContainerRef}

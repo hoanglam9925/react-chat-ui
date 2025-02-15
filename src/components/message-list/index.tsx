@@ -113,7 +113,6 @@ export default function MessageList({
     const scrollContainerRef = useRef<any>()
     const previousScrollTop = useRef<any>()
     const previousScrollHeight = useRef<any>()
-    const deltaHeightRef = useRef<any>()
 
     const { detectBottom, detectTop } = useDetectScrollPosition(scrollContainerRef)
 
