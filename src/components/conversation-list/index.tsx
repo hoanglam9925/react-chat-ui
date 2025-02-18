@@ -133,34 +133,39 @@ export default function ConversationList({
     isScrollingTopRef.current = isScrollingTop;
   }, [isScrollingTop])
 
-  useEffect(() => {
-    const adjustScrollPosition = () => {
-      const scrollContainer = scrollContainerRef.current;
+  const adjustScrollPosition = () => {
+    const scrollContainer = scrollContainerRef.current;
 
-      const newScrollHeight = scrollContainer.scrollHeight;
+    const newScrollHeight = scrollContainer.scrollHeight;
 
-      if (isFirstRender.current) {
-        // Scroll to the bottom on first render
-        // scrollContainer.scrollTop = newScrollHeight;
-        scrollContainer.scrollTop = 0;
-        isFirstRender.current = false;
-      } else {
-        if (isScrollingTopRef.current) {
-          // Maintain relative scroll position
-          scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current;
-        }
+    if (isFirstRender.current) {
+      // Scroll to the bottom on first render
+      // scrollContainer.scrollTop = newScrollHeight;
+      scrollContainer.scrollTop = 0;
+      isFirstRender.current = false;
+    } else {
+      if (isScrollingTopRef.current) {
         // Maintain relative scroll position
-        // scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current;
-        // scrollContainer.scrollTop + (newScrollHeight - previousScrollHeight.current);
+        scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current;
       }
+      // Maintain relative scroll position
+      // scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current;
+      // scrollContainer.scrollTop + (newScrollHeight - previousScrollHeight.current);
+    }
 
-      // Update refs timeout
-      setTimeout(() => {
-        previousScrollTop.current = scrollContainer.scrollTop;
-        previousScrollHeight.current = scrollContainer.scrollHeight;
-      }, 50);
+    // Update refs timeout
+    setTimeout(() => {
+      previousScrollTop.current = scrollContainer.scrollTop;
+      previousScrollHeight.current = scrollContainer.scrollHeight;
+    }, 50);
 
-    };
+  };
+
+  useEffect(() => {
+    scrollContainerRef.current.scrollTop = 10;
+    setTimeout(() => {
+        scrollContainerRef.current.scrollTop = 0;
+    }, 100);
     const observeRef = new MutationObserver(adjustScrollPosition);
     observeRef.observe(scrollContainerRef.current, { childList: true, subtree: true });
 
