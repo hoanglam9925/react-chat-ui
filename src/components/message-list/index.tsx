@@ -24,8 +24,6 @@ export type MessageListProps = {
     changeConversation?: boolean
 }
 
-
-
 const Container = styled.div`
 height: 100%;
 /* display: flex;
@@ -41,7 +39,6 @@ padding-right: 12px;
 const InnerContainer = styled.div`
 height: 100%;
 `
-
 
 const ScrollContainer = styled.div`
 overflow-y: auto;
@@ -106,52 +103,82 @@ export default function MessageList({
     /** keeps track of whether messages was previously empty or whether it has already scrolled */
     const [messagesWasEmpty, setMessagesWasEmpty] = useState(true)
     const [isBottom, setIsBottom] = useState(false)
+    const [isScrollingTop, setIsScrollingTop] = useState(false);
+    const isScrollingTopRef = useRef(isScrollingTop);
 
     const containerRef = useRef<any>()
-
     const bottomBufferRef = useRef<any>()
     const scrollContainerRef = useRef<any>()
     const previousScrollTop = useRef<any>()
     const previousScrollHeight = useRef<any>()
+    const isFirstRender = useRef(true);
+    const observerRef = useRef<MutationObserver | null>(null);
 
     const { detectBottom, detectTop } = useDetectScrollPosition(scrollContainerRef)
+    const noMessageTextColor = useColorSet("--no-message-text-color")
 
-    const isFirstRender = useRef(true);
-
-    const observeRef = useRef<any>();
-
+    // Update ref when state changes
     useEffect(() => {
-        const adjustScrollPosition = () => {
-            const scrollContainer = scrollContainerRef.current;
+        isScrollingTopRef.current = isScrollingTop;
+    }, [isScrollingTop]);
 
-            const newScrollHeight = scrollContainer.scrollHeight;
+    // Adjust scroll position function
+    const adjustScrollPosition = () => {
+        const scrollContainer = scrollContainerRef.current;
+        if (!scrollContainer) return;
 
-            if (isFirstRender.current) {
-                // Scroll to the bottom on first render
-                scrollContainer.scrollTop = newScrollHeight;
-                isFirstRender.current = false;
-            } else {
-                // Maintain relative scroll position
+        const newScrollHeight = scrollContainer.scrollHeight;
+
+        if (isFirstRender.current) {
+            // Scroll to the bottom on first render
+            scrollContainer.scrollTop = newScrollHeight;
+            isFirstRender.current = false;
+        } else {
+            if (isScrollingTopRef.current) {
+                // Maintain position when loading older messages (top)
                 scrollContainer.scrollTop = newScrollHeight - previousScrollHeight.current;
-                // scrollContainer.scrollTop + (newScrollHeight - previousScrollHeight.current);
+            } else if (isBottom || detectBottom()) {
+                // Scroll to bottom when already at bottom or when it's a new message
+                scrollToBottom();
+            } else {
+                // Maintain relative position for middle scrolling
+                scrollContainer.scrollTop = scrollContainer.scrollTop + (newScrollHeight - previousScrollHeight.current);
             }
+        }
 
-            // Update refs timeout
-            setTimeout(() => {
-                previousScrollTop.current = scrollContainer.scrollTop;
-                previousScrollHeight.current = scrollContainer.scrollHeight;
-            }, 50);
+        // Update refs after a short delay to ensure DOM is settled
+        setTimeout(() => {
+            previousScrollTop.current = scrollContainer.scrollTop;
+            previousScrollHeight.current = scrollContainer.scrollHeight;
+        }, 50);
+    };
 
-        };
-        const observeRef = new MutationObserver(adjustScrollPosition);
-        observeRef.observe(scrollContainerRef.current, { childList: true, subtree: true });
+    // Setup MutationObserver
+    useEffect(() => {
+        if (!scrollContainerRef.current) return;
+        
+        // Disconnect any existing observer
+        if (observerRef.current) {
+            observerRef.current.disconnect();
+        }
+        
+        // Create and connect new observer
+        observerRef.current = new MutationObserver(adjustScrollPosition);
+        observerRef.current.observe(scrollContainerRef.current, { 
+            childList: true, 
+            subtree: true 
+        });
 
         return () => {
-            observeRef.disconnect(); // Cleanup observer on unmount
+            // Cleanup on unmount
+            if (observerRef.current) {
+                observerRef.current.disconnect();
+                observerRef.current = null;
+            }
         };
-    }, []);
+    }, [changeConversation]); // Reconnect when conversation changes
 
-
+    // Initialize scroll position references
     useLayoutEffect(() => {
         const scrollContainer = scrollContainerRef.current;
         if (!scrollContainer) return;
@@ -160,84 +187,88 @@ export default function MessageList({
             previousScrollHeight.current = scrollContainer.scrollHeight;
         }
         if (previousScrollTop.current == null) {
-            previousScrollTop.current = scrollContainer.scrollTop
+            previousScrollTop.current = scrollContainer.scrollTop;
         }
-    }, [])
+    }, []);
 
+    // Handle conversation change
     useEffect(() => {
-        //detecting when the scroll view is first rendered and messages have rendered then you can scroll to the bottom
-        if (bottomBufferRef.current && scrollContainerRef.current && !messagesWasEmpty) {
-            scrollToBottom()
-        }
-
-    }, [messagesWasEmpty, bottomBufferRef.current, scrollContainerRef.current])
-
-    useEffect(() => {
-        scrollToBottom()
-    }, [])
-
-    useEffect(() => {
-        if (!messages) {
-            setMessagesWasEmpty(true)
-        }
-
-        if (messages) {
-            if (messagesWasEmpty) {
-                //if the messages object was previously empty then scroll to bottom
-                // this is for when the first page of messages arrives
-                //if a user has instead scrolled to the top and the next page of messages arrives then don't scroll to bottom
-
-                setMessagesWasEmpty(false)
-                scrollToBottom()
-            }
-
-            // when closer to the bottom of the scroll bar and a new message arrives then scroll to bottom
-            if (detectBottom()) {
-                scrollToBottom()
-            }
-
-            // If current is bottom, when new message arrives, scroll to bottom
-            if (isBottom) {
-                scrollToBottom()
-            }
-        }
-
         if (changeConversation) {
-            // Set timeout to wait observeRef to disconnect, other scroll to bottom will not work
+            // Disconnect observer before changing conversation
+            if (observerRef.current) {
+                observerRef.current.disconnect();
+            }
+            
+            // Reset scroll state
+            isFirstRender.current = true;
+            
+            // Set timeout to wait for DOM to update before reconnecting observer
             setTimeout(() => {
                 scrollToBottom();
+                
                 setTimeout(() => {
-                    previousScrollHeight.current = scrollContainerRef.current.scrollHeight;
-                    previousScrollTop.current = scrollContainerRef.current.scrollTop;
+                    // Update references after scrolling
+                    if (scrollContainerRef.current) {
+                        previousScrollHeight.current = scrollContainerRef.current.scrollHeight;
+                        previousScrollTop.current = scrollContainerRef.current.scrollTop;
+                    }
+                    
+                    // Reconnect observer
+                    if (scrollContainerRef.current && observerRef.current) {
+                        observerRef.current.observe(scrollContainerRef.current, { 
+                            childList: true, 
+                            subtree: true 
+                        });
+                    }
                 }, 100);
             }, 50);
         }
-    }, [messages])
+    }, [changeConversation]);
 
+    // Effect for handling initial load and new messages
     useEffect(() => {
-        // Disconnect observer immediately when changeConversation
-        if (observeRef.current) {
-            observeRef.current.disconnect();
+        //detecting when the scroll view is first rendered and messages have rendered then you can scroll to the bottom
+        if (bottomBufferRef.current && scrollContainerRef.current && !messagesWasEmpty) {
+            scrollToBottom();
         }
-    }, [changeConversation])
+    }, [messagesWasEmpty, bottomBufferRef.current, scrollContainerRef.current]);
 
+    // Initial scroll to bottom
     useEffect(() => {
-        //TODO when closer to the bottom of the scroll bar and a new message arrives then scroll to bottom
+        scrollToBottom();
+    }, []);
+
+    // Handle new messages
+    useEffect(() => {
+        if (!messages) {
+            setMessagesWasEmpty(true);
+            return;
+        }
+
+        if (messagesWasEmpty) {
+            setMessagesWasEmpty(false);
+            scrollToBottom();
+        } else if (detectBottom() || isBottom) {
+            scrollToBottom();
+        }
+
+    }, [messages]);
+
+    // Handle typing indicator
+    useEffect(() => {
         if (detectBottom()) {
-            scrollToBottom()
+            scrollToBottom();
         }
-    }, [showTypingIndicator])
+    }, [showTypingIndicator]);
 
-
-    const noMessageTextColor = useColorSet("--no-message-text-color")
-
-    const scrollToBottom = async () => {
+    // Scroll to bottom function
+    const scrollToBottom = () => {
         if (bottomBufferRef.current && scrollContainerRef.current) {
-            const container = scrollContainerRef.current
-            const scrollPoint = bottomBufferRef.current
+            const container = scrollContainerRef.current;
+            const scrollPoint = bottomBufferRef.current;
 
-            const parentRect = container.getBoundingClientRect()
-            const childRect = scrollPoint.getBoundingClientRect()
+            const parentRect = container.getBoundingClientRect();
+            const childRect = scrollPoint.getBoundingClientRect();
 
             // Scroll by offset relative to parent
             const scrollOffset = childRect.top + container.scrollTop - parentRect.top;
@@ -250,138 +281,133 @@ export default function MessageList({
 
             setIsBottom(true);
         }
-    }
+    };
 
+    // Handle scroll events
+    const handleScroll = () => {
+        //detect when scrolled to top
+        if (detectTop()) {
+            setIsScrollingTop(true);
+            onScrollToTop && onScrollToTop();
+            setTimeout(() => {
+                setIsScrollingTop(false);
+            }, 1000);
+        }
 
+        if (detectBottom()) {
+            setIsBottom(true);
+        } else {
+            setIsBottom(false);
+        }
+    };
 
     return (
-        <Container
-            ref={containerRef}
-        >
-
+        <Container ref={containerRef}>
             <MessageListBackground
                 roundedCorners={false}
                 mobileView={mobileView} />
 
-
             <InnerContainer>
-
-                {loading ?
+                {loading ? (
                     <LoadingContainer>
-                        {customLoaderComponent ?
-                            customLoaderComponent :
+                        {customLoaderComponent ? 
+                            customLoaderComponent : 
                             <Loading themeColor={themeColor} />}
                     </LoadingContainer>
-                    :
-                    <>
+                ) : (
+                    <ScrollContainer
+                        onScroll={handleScroll}
+                        ref={scrollContainerRef}>
 
-                        <ScrollContainer
-                            onScroll={() => {
-                                //detect when scrolled to top
-                                if (detectTop()) {
-                                    onScrollToTop && onScrollToTop()
-                                }
+                        {(messages && messages.length <= 0) &&
+                            (customEmptyMessagesComponent ?
+                                customEmptyMessagesComponent
+                                :
+                                <NoMessagesTextContainer
+                                    color={noMessageTextColor}>
+                                    <p>No messages yet...</p>
+                                </NoMessagesTextContainer>)
+                        }
+                        {messages && scrollContainerRef.current && bottomBufferRef.current && messages.map(({ user, text, media, loading: messageLoading, failed: messageFailed, seen, createdAt, debugInfo, ...message }, index) => {
+                            //determining the type of message to render
+                            let lastClusterMessage, firstClusterMessage, last, single
 
-                                if (detectBottom()) {
-                                    setIsBottom(true)
-                                } else {
-                                    setIsBottom(false)
-                                }
-                            }}
-                            ref={scrollContainerRef}>
+                            //if it is the first message in the messages array then show the header
+                            if (index === 0) { firstClusterMessage = true }
+                            //if the previous message from a different user then show the header
+                            if (index > 0 && messages[index - 1].user.id !== user.id) { firstClusterMessage = true }
+                            //if it is the last message in the messages array then show the avatar and is the last incoming
+                            if (index === messages.length - 1) { lastClusterMessage = true; last = true }
+                            //if the next message from a different user then show the avatar and is last message incoming
+                            if (index < messages.length - 1 && messages[index + 1].user.id !== user.id) { lastClusterMessage = true; last = true }
+                            //if the next message and the previous message are not from the same user then single incoming is true
+                            if (index < messages.length - 1 && index > 0 && messages[index + 1].user.id !== user.id && messages[index - 1].user.id !== user.id) { single = true }
+                            //if it is the first message in the messages array and the next message is from a different user then single incoming is true
+                            if (index === 0 && index < messages.length - 1 && messages[index + 1].user.id !== user.id) { single = true }
+                            //if it is the last message in the messages array and the previous message is from a different user then single incoming is true
+                            if (index === messages.length - 1 && index > 0 && messages[index - 1].user.id !== user.id) { single = true }
+                            //if the messages array contains only 1 message then single incoming is true
+                            if (messages.length === 1) { single = true }
 
-                            {(messages && messages.length <= 0) &&
-                                (customEmptyMessagesComponent ?
-                                    customEmptyMessagesComponent
-                                    :
-                                    <NoMessagesTextContainer
-                                        color={noMessageTextColor}>
-                                        <p>No messages yet...</p>
-                                    </NoMessagesTextContainer>)
+                            let key = index;
+                            if (message.messageId) {
+                                key = message.messageId
                             }
-                            {messages && scrollContainerRef.current && bottomBufferRef.current && messages.map(({ user, text, media, loading: messageLoading, failed: messageFailed, seen, createdAt, debugInfo, ...message }, index) => {
-                                //determining the type of message to render
-                                let lastClusterMessage, firstClusterMessage, last, single
 
-                                //if it is the first message in the messages array then show the header
-                                if (index === 0) { firstClusterMessage = true }
-                                //if the previous message from a different user then show the header
-                                if (index > 0 && messages[index - 1].user.id !== user.id) { firstClusterMessage = true }
-                                //if it is the last message in the messages array then show the avatar and is the last incoming
-                                if (index === messages.length - 1) { lastClusterMessage = true; last = true }
-                                //if the next message from a different user then show the avatar and is last message incoming
-                                if (index < messages.length - 1 && messages[index + 1].user.id !== user.id) { lastClusterMessage = true; last = true }
-                                //if the next message and the previous message are not from the same user then single incoming is true
-                                if (index < messages.length - 1 && index > 0 && messages[index + 1].user.id !== user.id && messages[index - 1].user.id !== user.id) { single = true }
-                                //if it is the first message in the messages array and the next message is from a different user then single incoming is true
-                                if (index === 0 && index < messages.length - 1 && messages[index + 1].user.id !== user.id) { single = true }
-                                //if it is the last message in the messages array and the previous message is from a different user then single incoming is true
-                                if (index === messages.length - 1 && index > 0 && messages[index - 1].user.id !== user.id) { single = true }
-                                //if the messages array contains only 1 message then single incoming is true
-                                if (messages.length === 1) { single = true }
+                            if (user.id == (currentUserId && currentUserId.toLowerCase())) {
 
-                                let key = index;
-                                if (message.messageId) {
-                                    key = message.messageId
-                                }
+                                // my message
+                                return <Message key={key}
+                                    type="outgoing"
+                                    last={single ? false : last}
+                                    single={single}
+                                    text={text}
+                                    seen={seen}
+                                    created_at={createdAt}
+                                    media={media}
+                                    // the last message should show loading if sendMessage loading is true
+                                    loading={messageLoading}
+                                    failed={messageFailed}
+                                    clusterFirstMessage={firstClusterMessage}
+                                    clusterLastMessage={lastClusterMessage}
+                                    debugInfo={debugInfo}
+                                />
 
-                                if (user.id == (currentUserId && currentUserId.toLowerCase())) {
+                            } else {
 
-                                    // my message
-                                    return <Message key={key}
-                                        type="outgoing"
-                                        last={single ? false : last}
-                                        single={single}
-                                        text={text}
-                                        seen={seen}
-                                        created_at={createdAt}
-                                        media={media}
-                                        // the last message should show loading if sendMessage loading is true
-                                        loading={messageLoading}
-                                        failed={messageFailed}
-                                        clusterFirstMessage={firstClusterMessage}
-                                        clusterLastMessage={lastClusterMessage}
-                                        debugInfo={debugInfo}
-                                    />
+                                // other message
+                                return <Message
+                                    type='incoming'
+                                    key={key}
+                                    user={user}
+                                    media={media}
+                                    seen={seen}
+                                    created_at={createdAt}
+                                    showAvatar={lastClusterMessage}
+                                    showHeader={firstClusterMessage}
+                                    last={single ? false : last}
+                                    single={single}
+                                    text={text}
+                                    debugInfo={debugInfo}
+                                />
+                            }
+                        })}
 
-                                } else {
+                        {showTypingIndicator && (
+                            customTypingIndicatorComponent ?
+                                customTypingIndicatorComponent
+                                : <TypingIndicator
+                                    content={typingIndicatorContent}
+                                    themeColor={themeColor} />
+                        )}
 
-                                    // other message
-                                    return <Message
-                                        type='incoming'
-                                        key={key}
-                                        user={user}
-                                        media={media}
-                                        seen={seen}
-                                        created_at={createdAt}
-                                        showAvatar={lastClusterMessage}
-                                        showHeader={firstClusterMessage}
-                                        last={single ? false : last}
-                                        single={single}
-                                        text={text}
-                                        debugInfo={debugInfo}
-                                    />
-                                }
-                            })}
-
-                            {showTypingIndicator && (
-                                customTypingIndicatorComponent ?
-                                    customTypingIndicatorComponent
-                                    : <TypingIndicator
-                                        content={typingIndicatorContent}
-                                        themeColor={themeColor} />
-                            )}
-
-                            {/* bottom buffer */}
-                            <div>
-                                <Buffer ref={bottomBufferRef} />
-                            </div>
-                        </ScrollContainer>
-                    </>
-
-                }
+                        {/* bottom buffer */}
+                        <div>
+                            <Buffer ref={bottomBufferRef} />
+                        </div>
+                    </ScrollContainer>
+                )}
             </InnerContainer>
-
         </Container>
     )
 }
