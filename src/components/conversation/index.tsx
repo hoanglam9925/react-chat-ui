@@ -8,6 +8,7 @@ import MinChatUIContext from '../../contexts/MinChatUIContext';
 
 export type Props = {
   title: string;
+  blockMessage?: boolean;
   lastMessage?: MessageType;
   unread?: boolean,
   avatar?: string;
@@ -215,6 +216,7 @@ const MediaContainer = styled.div`
 
 export default function Conversation({
   title,
+  blockMessage,
   lastMessage,
   onClick,
   avatar,
@@ -385,7 +387,7 @@ export default function Conversation({
           <NameContainer>
             <Name
               titleTextColor={titleTextColor}
-              unread={unread}>{title}</Name>
+              unread={unread}><div dangerouslySetInnerHTML={{ __html: title}}></div></Name>
 
             <Timestamp
               unread={unread}
@@ -413,6 +415,7 @@ export default function Conversation({
                 dangerouslySetInnerHTML={{ __html: lastMessage?.text || "" }}></div>
             )}
           </MessageComponent>
+          {blockMessage && <div dangerouslySetInnerHTML={{__html: blockMessage}}></div>}
         </TextContainer>
       </ContentContainer>
     </Container>

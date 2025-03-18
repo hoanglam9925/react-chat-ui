@@ -235,6 +235,7 @@ export default function ConversationList({
                       onClick={() => onConversationClick && onConversationClick(index)}
                       key={index}
                       title={conversation.title}
+                      blockMessage={conversation?.blocked_message}
                       lastMessage={conversation.lastMessage}
                       avatar={conversation.avatar}
                       selected={selectedConversationId === conversation.id}
