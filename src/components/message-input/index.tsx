@@ -35,7 +35,7 @@ ${({ mobile }) => mobile ? `
 
 `:
         ` 
-padding-right: 12px;
+padding-right: 0px;
  `}
 `
 const Form = styled.form<{

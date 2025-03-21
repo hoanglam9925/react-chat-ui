@@ -23,7 +23,7 @@ height: 100%;
 z-index: 0;
 box-sizing: border-box;
 ${({ mobile }) => !mobile ? `
-padding-right: 12px;
+padding-right: 0px;
 ` : ""}
 
 `
