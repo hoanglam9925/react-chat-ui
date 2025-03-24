@@ -1,3 +1,4 @@
+// @ts-ignore
 import React, { useContext, useEffect } from 'react'
 import styled from 'styled-components'
 import { Container as MyMessageContainer, Wrapper as MyMessageWrapper, Background } from '../outgoing-message'
@@ -117,15 +118,70 @@ export default function IncomingMessage({
 
     const customBackgroundColor = media?.type == 'audio' ? 'transparent' : backgroundColor
 
-    function stringify(obj_from_json: any) {
-        if (typeof obj_from_json !== "object" || obj_from_json === null) {
-            return obj_from_json;
-        }
-        const formattedString = Object.entries(obj_from_json)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join('<br>');
+    function extractStyledContent(htmlString: string) {
+        // Guard clause for non-string inputs
+        if (typeof htmlString !== 'string') return null;
 
-        return formattedString;
+        const styleRegex = /<([a-z]+)[^>]*style=(['"])(.*?)\2[^>]*>(.*?)<\/\1>/i;
+        const match = htmlString.match(styleRegex);
+
+        if (match) {
+            return {
+                fullMatch: match[0],
+                tag: match[1],
+                styleContent: match[3],
+                innerContent: match[4]
+            };
+        }
+        return null;
+    }
+
+    function sanitizeStyle(styleString: string): string {
+        // Only allow color styles to prevent XSS
+        const colorRegex = /color:\s*([^;]+);?/;
+        const colorMatch = styleString.match(colorRegex);
+        return colorMatch ? `color: ${colorMatch[1]}` : '';
+    }
+
+    function stringify(obj_from_json: any): string {
+        // Handle primitives and null
+        if (typeof obj_from_json !== "object" || obj_from_json === null) {
+            return String(obj_from_json);
+        }
+
+        // Handle arrays
+        if (Array.isArray(obj_from_json)) {
+            return obj_from_json.map(item => stringify(item)).join(', ');
+        }
+
+        try {
+            const formattedString = Object.entries(obj_from_json)
+                .map(([key, value]) => {
+                    // Get key style in key
+                    const keyStyle = key.includes('style=') ? extractStyledContent(key) : null;
+                    let doubleQuotedStyle = '';
+
+                    if (keyStyle?.styleContent) {
+                        const sanitizedStyle = sanitizeStyle(keyStyle.styleContent);
+                        if (sanitizedStyle) {
+                            doubleQuotedStyle = `style="${sanitizedStyle}"`;
+                        }
+                    }
+
+                    // Convert value to string, handling nested objects
+                    const stringValue = typeof value === 'object' && value !== null
+                        ? JSON.stringify(value)
+                        : String(value);
+
+                    return `${key}<span ${doubleQuotedStyle}>:</span> ${stringValue}`;
+                })
+                .join('<br>');
+
+            return formattedString;
+        } catch (error) {
+            console.error('Error in stringify:', error);
+            return String(obj_from_json);
+        }
     }
 
     return (
