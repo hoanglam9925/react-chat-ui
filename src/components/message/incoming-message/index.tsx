@@ -22,6 +22,7 @@ const MessageContainer = styled(MyMessageContainer)`
 const Wrapper = styled(MyMessageWrapper)`
 justify-content: start;
 align-items: flex-end;
+margin-left: 10px;
 `
 
 const DPContainer = styled.div`

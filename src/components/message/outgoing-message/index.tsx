@@ -12,7 +12,7 @@ import MinChatUIContext from '../../../contexts/MinChatUIContext'
 export const Wrapper = styled.div<{ firstMessage?: boolean, lastMessage?: boolean }>`
     display:flex;
     justify-content: end;
-    margin-right: 10px;
+    margin-right: 20px;
     margin-top: ${({ firstMessage }) => firstMessage ? "16px" : "2px"};
     position: relative;
     box-sizing: border-box;
