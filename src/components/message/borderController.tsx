@@ -29,10 +29,11 @@ export const getBorderCss = ({
     }
 
     return `
-    border-top-left-radius: ${borderTopLeft ? "8px" : "2px"};
-    border-top-right-radius: ${borderTopRight ? "8px" : "2px"};
-    border-bottom-left-radius: ${borderBottomLeft ? "8px" : "2px"};
-    border-bottom-right-radius: ${borderBottomRight ? "8px" : "2px"};
+    // border-top-left-radius: ${borderTopLeft ? "8px" : "2px"};
+    // border-top-right-radius: ${borderTopRight ? "8px" : "2px"};
+    // border-bottom-left-radius: ${borderBottomLeft ? "8px" : "2px"};
+    // border-bottom-right-radius: ${borderBottomRight ? "8px" : "2px"};
+    border-radius: 8px;
     height: ${set_fixed_height ? "300px" : null};    
     object-fit: contain;
     `
