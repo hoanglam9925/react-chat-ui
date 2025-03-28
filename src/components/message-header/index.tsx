@@ -57,6 +57,7 @@ const ChatTitle = styled.div<{
     line-height:auto;
     color:${({ color }) => color || '#000000'};
     position: relative;
+    height: 100%;
     width: 100%;
     font-weight: 500;
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

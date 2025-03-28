@@ -6,7 +6,7 @@ export type Props = {
 }
 
 const defaultStyle: React.CSSProperties = {
-    paddingTop: '16px',
+    // paddingTop: '16px',
     paddingBottom: '16px',
     width: '35%',
     height: '100%',

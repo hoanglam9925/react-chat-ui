@@ -20,7 +20,9 @@ export type Props = {
    */
   currentUserId?: string;
 };
-const Container = styled.div`
+const Container = styled.div<{
+  selected?: boolean
+}>`
   width: 100%;
   height: 88px;
   position: relative;
@@ -29,7 +31,14 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  &:hover .conversation-background {
+    opacity: ${props => props.selected ? 1 : 0.09};
+    background-color: #444C57;
+  }
 
+  & .conversation-user-extend-info {
+    color: ${props => props.selected ? '#fff' : '#9b9c9d'};
+  }
 `;
 const ContentContainer = styled.div<{
   sentiment_color?: string;
@@ -72,12 +81,14 @@ height: 100%;
 background-color: ${({ themeColor, selected, backgroundColor, selectedBackgroundColor }) =>
     selected ? (selectedBackgroundColor || themeColor) : (backgroundColor || '#ffffff')};
 // opacity: 0.2;
-z-index: 1;
-transition: all 0.3s ease-in-out;
+z-index: 0;
+// transition: all 0.3s ease-in-out;
 
 &:hover{
 ${({ selected }) => (!selected ? 'opacity: 0.09;' : '')} 
 background-color: ${({ themeColor, hoverColor }) => hoverColor || themeColor};
+color: red;
+z-index: 1;
 
 }
 `;
@@ -113,6 +124,7 @@ justify-content: space-between;
 
 const Timestamp = styled.div<{
   color?: string,
+  selected?: boolean,
   unread?: boolean
 }>`
 text-align:right;
@@ -124,15 +136,22 @@ margin-right:2px;
 align-self:flex-start;
 line-height:auto;
 font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-
-${({ unread, color }) =>
-    unread
+ 
+${({ unread, color, selected }) =>
+    selected
       ? `
-color: ${color || 'black'} ;
-font-weight: 600;
-` : `
-color: ${color || 'rgb(75 85 99)'};
-`}
+        color: #fff;
+        font-weight: ${unread ? '600' : 'normal'};
+      `
+      : unread
+        ? `
+          color: ${color || 'black'};
+          font-weight: 600;
+        `
+        : `
+          color: ${color || 'rgb(75 85 99)'};
+        `
+  }
 `
 
 // const LastMessageUser = styled.div<{ seen?: boolean }>`
@@ -156,6 +175,7 @@ color: ${color || 'rgb(75 85 99)'};
 const MessageComponent = styled.div<{
   unread?: boolean;
   width: number;
+  selected?: boolean;
   media?: boolean;
   color?: string
 }>`
@@ -167,7 +187,7 @@ const MessageComponent = styled.div<{
   font-size: 12px;
   align-self: flex-start;
   position: relative;
-  color: ${({ color }) => color || '#7a7a7a'};
+  // color: ${({ color }) => color || '#7a7a7a'};
 
   overflow: hidden;
   white-space: nowrap;
@@ -177,13 +197,21 @@ const MessageComponent = styled.div<{
   display: flex;
   margin-top: 4px;
 
-  ${({ unread, color }) =>
-    unread
+  ${({ unread, selected, color }) =>
+    selected
       ? `
-color: ${color || 'black'} ;
-font-weight: 600;
-` : ''}
-
+        color: #fff;
+        font-weight: ${unread ? '600' : 'normal'};
+      `
+      : unread
+        ? `
+          color: ${color || 'black'};
+          font-weight: 600;
+        `
+        : `
+          color: ${color || '#7a7a7a'};
+        `
+  }
 `;
 
 
@@ -205,7 +233,9 @@ const DisplayPictureContainer = styled.div`
   box-sizing: border-box;
 `;
 
-const DisplayPicture = styled.img`
+const DisplayPicture = styled.img<{
+  selected?: boolean
+}>`
   width: 44px;
   height: 44px;
   // border-radius: 9999px;
@@ -213,6 +243,7 @@ const DisplayPicture = styled.img`
   border-width: 2px;
   border-color: rgb(255 255 255);
   object-fit: cover;
+  filter: ${({ selected }) => (selected ? 'drop-shadow(0px 3px 6px black);' : 'none')};
   z-index: 1;
   position: relative;
 `;
@@ -382,8 +413,9 @@ export default function Conversation({
   }
 
   return (
-    <Container ref={containerRef} onClick={onClick} className="fade-animation">
-      <Background selected={selected}
+    <Container ref={containerRef} onClick={onClick} className="fade-animation" selected={selected}>
+      <Background className='conversation-background'
+        selected={selected}
         hoverColor={hoverColor}
         selectedBackgroundColor={selectedBackgroundColor}
         backgroundColor={backgroundColor}
@@ -393,6 +425,7 @@ export default function Conversation({
         <div>
           <DisplayPictureContainer>
             <DisplayPicture
+              selected={selected}
               onError={() => {
                 setUsedAvatar(placeholderProfilePNG);
               }}
@@ -406,14 +439,16 @@ export default function Conversation({
           <NameContainer>
             <Name
               titleTextColor={titleTextColor}
-              unread={unread}><div dangerouslySetInnerHTML={{ __html: title}}></div></Name>
+              unread={unread}><div dangerouslySetInnerHTML={{ __html: title }}></div></Name>
 
             <Timestamp
               unread={unread}
+              selected={selected}
               color={contentTextColor}>{dateSent}</Timestamp>
           </NameContainer>
 
           <MessageComponent
+            selected={selected}
             color={contentTextColor}
             width={containerWidth - 96}
             unread={unread}
@@ -434,7 +469,7 @@ export default function Conversation({
                 dangerouslySetInnerHTML={{ __html: lastMessage?.text || "" }}></div>
             )}
           </MessageComponent>
-          {blockMessage && <div dangerouslySetInnerHTML={{__html: blockMessage}}></div>}
+          {blockMessage && <div dangerouslySetInnerHTML={{ __html: blockMessage }}></div>}
         </TextContainer>
       </ContentContainer>
     </Container>

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react'
 import styled from 'styled-components'
 import useColorSet from '../../hooks/useColorSet'
@@ -12,7 +13,8 @@ const Container = styled.div<{
     dividerColor?: string
 
 }>`
-height:56px;
+// height:56px;
+height: 0px;
 padding:0px;
 background-color:${({ backgroundColor }) => backgroundColor || '#ffffff'};
 
@@ -48,7 +50,8 @@ font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe
 `
 const HeaderPlaceholder = styled.div`
    background-color: transparent;
-     height: 56px;
+    //  height: 56px;
+    height: 0px;
       position: absolute;
       top: 0px;
 left: 0px;
@@ -76,9 +79,9 @@ export default function ConversationHeader({ loading, showHeader = true }: Props
                             dividerColor={dividerColor}
                             backgroundColor={backgroundColor}>
 
-                            <ChatTitle
+                            {/* <ChatTitle
                                 color={textColor}
-                            >Messages</ChatTitle>
+                            >Messages</ChatTitle> */}
 
                         </Container>
                     )
