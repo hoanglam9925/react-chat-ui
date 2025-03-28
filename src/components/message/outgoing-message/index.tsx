@@ -23,7 +23,7 @@ export const Wrapper = styled.div<{ firstMessage?: boolean, lastMessage?: boolea
 
 
 export const Container = styled.div`
-max-width:40vw;
+max-width:50vw;
 min-width:80px;
 margin-left: 10px;
 justify-content:flex-end;
@@ -32,6 +32,7 @@ gap:10px;
 white-space: pre-wrap;
 position:relative;
 box-sizing: border-box;
+margin-left: 20px;
 `
 export const Background = styled.div<{
     bgColor: string,
@@ -48,7 +49,7 @@ export const Background = styled.div<{
 
 const DebugInfo = styled.div`
     font-size: 10px;
-    margin-left: 10px;
+    margin-left: 20px;
     color: rgba(0,0,0,.36);
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
  `
