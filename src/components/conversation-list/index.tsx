@@ -234,6 +234,7 @@ export default function ConversationList({
                     <Conversation
                       onClick={() => onConversationClick && onConversationClick(index)}
                       key={index}
+                      sentiment_color={conversation?.sentiment_color}
                       title={conversation.title}
                       blockMessage={conversation?.blocked_message}
                       lastMessage={conversation.lastMessage}

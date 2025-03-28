@@ -8,6 +8,7 @@ import MinChatUIContext from '../../contexts/MinChatUIContext';
 
 export type Props = {
   title: string;
+  sentiment_color?: string;
   blockMessage?: boolean;
   lastMessage?: MessageType;
   unread?: boolean,
@@ -30,15 +31,32 @@ const Container = styled.div`
   box-sizing: border-box;
 
 `;
-const ContentContainer = styled.div`
+const ContentContainer = styled.div<{
+  sentiment_color?: string;
+}>`
   display: flex;
   position: relative;
   flex-direction: row;
   align-items: center;
   padding-left: 8px;
+    padding-right: 8px; /* Include right padding for symmetry */
+  padding-top: 10px; /* Adjust top padding as needed */
+  padding-bottom: 10px; /* Adjust bottom padding as needed */
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+
+  &::before {
+    content: "";
+    position: absolute; 
+    top: 10px;
+    bottom: 10px;
+    width: 7px;
+    margin: -10px;
+    z-index: 999;
+    pointer-events: none; 
+    background-color: ${props => props?.sentiment_color ?? 'transparent'};
+  }
 `;
 
 const Background = styled.div<{
@@ -53,7 +71,7 @@ width: 100%;
 height: 100%;
 background-color: ${({ themeColor, selected, backgroundColor, selectedBackgroundColor }) =>
     selected ? (selectedBackgroundColor || themeColor) : (backgroundColor || '#ffffff')};
-opacity: 0.2;
+// opacity: 0.2;
 z-index: 1;
 transition: all 0.3s ease-in-out;
 
@@ -181,16 +199,16 @@ const TextContainer = styled.div`
 `;
 
 const DisplayPictureContainer = styled.div`
-  width: 58px;
-  height: 58px;
+  width: 44px;
+  height: 44px;
   margin-right: 12px;
   box-sizing: border-box;
 `;
 
 const DisplayPicture = styled.img`
-  width: 58px;
-  height: 58px;
-  border-radius: 9999px;
+  width: 44px;
+  height: 44px;
+  // border-radius: 9999px;
   box-sizing: border-box;
   border-width: 2px;
   border-color: rgb(255 255 255);
@@ -216,6 +234,7 @@ const MediaContainer = styled.div`
 
 export default function Conversation({
   title,
+  sentiment_color,
   blockMessage,
   lastMessage,
   onClick,
@@ -370,7 +389,7 @@ export default function Conversation({
         backgroundColor={backgroundColor}
         themeColor={themeColor} />
 
-      <ContentContainer>
+      <ContentContainer sentiment_color={sentiment_color}>
         <div>
           <DisplayPictureContainer>
             <DisplayPicture
