@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useContext, useRef, useState } from 'react'
 import styled from 'styled-components'
 import useTypingListener from '../../hooks/useTypingListener'
@@ -28,6 +29,7 @@ box-sizing: border-box;
 position: relative;
 width: 100%;
 display: flex;
+justify-content: center;
 
 
 ${({ mobile }) => mobile ? `
@@ -44,12 +46,13 @@ const Form = styled.form<{
 }>`
 background-color:${({ backgroundColor }) => backgroundColor || "#f3f4f6"};
 padding-top: 8px;
-padding-bottom: 8px;
-border-bottom-right-radius: 16px;
-border-bottom-left-radius: 16px;
+padding-bottom: 11px;
+// border-bottom-right-radius: 16px;
+// border-bottom-left-radius: 16px;
+border-radius: 16px;
 box-shadow:0px -1px 0px rgba(0, 0, 0, 0.07999999821186066);
 position: relative;
-width: 100%;
+width: 95%;
 display: flex;
 align-items: end;
 box-sizing: border-box;
@@ -123,8 +126,8 @@ const InputElement = styled.div<{
 
 const ArrowContainer = styled.div<{ showCursor: boolean, disabled: boolean }>`
     position: relative;
-    padding-left:16px;
-    padding-right:16px;
+    padding-left:20px;
+    padding-right:18px;
     cursor: ${({ showCursor, disabled }) => showCursor && !disabled ? 'pointer' : 'default'};
     display: flex;
     align-items: end;
@@ -138,14 +141,14 @@ const ArrowContainer = styled.div<{ showCursor: boolean, disabled: boolean }>`
 
 const AttachmentContainer = styled.div<{ disabled: boolean }>`
     position: relative;
-    padding-left:16px;
+    padding-left:24px;
     padding-right:16px;
     display: flex;
 
     align-items: end;
     height: 100%;
     padding-top: 8px;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
 
     ${({ disabled }) => !disabled ? `
     cursor: pointer;
@@ -241,7 +244,10 @@ export default function MessageInput({
                         onClick={onAttachClick}
                     >
 
-                        <svg
+<svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0.930542 1.99509C0.930542 0.893231 1.74213 0 2.74005 0H9.08394L13.6136 5.00246V15.9976C13.6136 17.1035 12.8009 18 11.7964 18H2.74772C1.74412 18 0.930542 17.1074 0.930542 16.0049V1.99509ZM9.98926 6.00049C8.98599 5.99995 8.17801 5.10521 8.17801 4.00019V1H2.74005C2.24162 1 1.83648 1.44645 1.83648 1.99509V16.0049C1.83648 16.5536 2.24313 17 2.74772 17H11.7964C12.3006 17 12.7077 16.5513 12.7077 15.9976V6.00196L9.98926 6.00049ZM2.74241 8.5C2.74241 8.22386 2.93704 8 3.19329 8H6.82119C7.07021 8 7.27208 8.23193 7.27208 8.5C7.27208 8.77614 7.07744 9 6.82119 9H3.19329C2.94428 9 2.74241 8.76807 2.74241 8.5ZM2.74241 11.5C2.74241 11.2239 2.94396 11 3.20413 11H10.4341C10.6891 11 10.8958 11.2319 10.8958 11.5C10.8958 11.7761 10.6943 12 10.4341 12H3.20413C2.94913 12 2.74241 11.7681 2.74241 11.5ZM2.74241 14.5C2.74241 14.2239 2.94396 14 3.20413 14H10.4341C10.6891 14 10.8958 14.2319 10.8958 14.5C10.8958 14.7761 10.6943 15 10.4341 15H3.20413C2.94913 15 2.74241 14.7681 2.74241 14.5Z" fill="#444C57"/>
+</svg>
+                        {/* <svg
                             fill={inputAttachColor || themeColor}
                             width="24"
                             height="24"
@@ -254,7 +260,7 @@ export default function MessageInput({
 
                             <g id="SVGRepo_iconCarrier"> <title>paperclip</title> <path d="M29.131 15.262c-0.226-0.227-0.54-0.368-0.886-0.368-0.344 0-0.656 0.139-0.882 0.364l-11.003 10.959c-1.163 1.312-2.853 2.134-4.735 2.134-1.812 0-3.446-0.763-4.598-1.985l-0.003-0.003c-1.236-1.157-2.006-2.799-2.006-4.62 0-1.872 0.813-3.553 2.105-4.711l0.006-0.005 12.001-12c0.769-0.857 1.879-1.394 3.116-1.394s2.348 0.537 3.113 1.391l0.003 0.004c0.858 0.768 1.395 1.879 1.395 3.115s-0.536 2.345-1.389 3.109l-0.004 0.003-11.081 10.996c-1.463 1.438-2.912 1.273-3.698 0.473s-0.926-2.252 0.544-3.695l8.001-8.002c0.228-0.226 0.369-0.54 0.369-0.886 0-0.69-0.56-1.25-1.25-1.25-0.347 0-0.66 0.141-0.887 0.369l-7.992 7.993c-1.141 0.917-1.865 2.313-1.865 3.877 0 1.291 0.493 2.467 1.301 3.35l-0.003-0.004c0.887 0.841 2.089 1.357 3.411 1.357 1.537 0 2.91-0.698 3.821-1.795l0.007-0.008 11.090-11.004c1.307-1.226 2.121-2.963 2.121-4.891 0-0.111-0.003-0.222-0.008-0.332l0.001 0.016c-0.131-1.796-0.914-3.388-2.112-4.558l-0.001-0.001c-1.172-1.199-2.764-1.983-4.537-2.114l-0.023-0.001c-0.089-0.004-0.194-0.007-0.299-0.007-1.933 0-3.676 0.814-4.906 2.118l-0.003 0.003-12.002 12.002c-1.751 1.615-2.845 3.922-2.845 6.483 0 2.514 1.053 4.781 2.741 6.386l0.004 0.004c1.635 1.654 3.894 2.688 6.394 2.721l0.006 0c2.554-0.041 4.845-1.135 6.463-2.866l0.005-0.005 11-10.955c0.227-0.226 0.367-0.539 0.367-0.885 0-0.345-0.14-0.657-0.365-0.883l0 0z" /> </g>
 
-                        </svg>
+                        </svg> */}
 
                     </AttachmentContainer>
                 )

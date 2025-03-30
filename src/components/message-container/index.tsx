@@ -12,7 +12,7 @@ const Container = styled.div`
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  border: 1px solid #aaa;
+//   border: 1px solid #aaa;
 `
 
 

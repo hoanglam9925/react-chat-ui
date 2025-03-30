@@ -35,7 +35,7 @@ position: relative;
   height: 100%;
   width: 100%;
 // padding-top: ${({ loading }) => loading ? '0px' : '56px'};
-border-radius: 15px;
+border-radius: 16px;
 box-sizing: border-box;
 overflow-y: auto;
 max-height: 100vh;

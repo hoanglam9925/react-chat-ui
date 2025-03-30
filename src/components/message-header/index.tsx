@@ -34,7 +34,7 @@ const InnerContainer = styled.div<{
     height:100%;
     padding:0px;
     box-shadow:0px 1px 0px rgba(0, 0, 0, 0.07999999821186066);
-    position:relative;
+    // position:relative;
     width:100%;
     z-index: 1;
     display: flex;
@@ -51,7 +51,8 @@ width: 100%;
 const ChatTitle = styled.div<{
     color?: string
 }>`
-    text-align:center;
+    padding-left: 20px;
+    // text-align:center;
     vertical-align:text-top;
     font-size:16px;
     line-height:auto;
