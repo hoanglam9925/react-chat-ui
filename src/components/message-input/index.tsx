@@ -141,7 +141,7 @@ const ArrowContainer = styled.div<{ showCursor: boolean, disabled: boolean }>`
 
 const AttachmentContainer = styled.div<{ disabled: boolean }>`
     position: relative;
-    padding-left:24px;
+    padding-left:22px;
     padding-right:16px;
     display: flex;
 
