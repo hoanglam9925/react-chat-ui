@@ -23,7 +23,7 @@ export const Wrapper = styled.div<{ firstMessage?: boolean, lastMessage?: boolea
 
 
 export const Container = styled.div`
-max-width:50vw;
+max-width:70vw;
 min-width:80px;
 margin-left: 10px;
 justify-content:flex-end;
@@ -178,7 +178,7 @@ export default function MyMessage({
                         >{text}</TextContent>}
 
                     <Timestamp
-                        showSeen
+                        showSeen={false}
                         color={timestampColor}
                         loaderColor={loaderColor}
                         checkmarkColor={checkmarkColor}

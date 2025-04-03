@@ -54,6 +54,7 @@ const Container = styled.div`
   position: relative;
   max-height: 100vh;
   overflow: hidden;
+  // width: 250px;
 `;
 
 // const SearchElement = styled.input`
@@ -165,7 +166,9 @@ export default function ConversationList({
   useEffect(() => {
     scrollContainerRef.current.scrollTop = 10;
     setTimeout(() => {
+      if (scrollContainerRef.current) {
         scrollContainerRef.current.scrollTop = 0;
+      }
     }, 100);
     const observeRef = new MutationObserver(adjustScrollPosition);
     observeRef.observe(scrollContainerRef.current, { childList: true, subtree: true });
@@ -243,6 +246,7 @@ export default function ConversationList({
                       selected={selectedConversationId === conversation.id}
                       currentUserId={currentUserId}
                       unread={conversation.unread}
+                      statusIcon={conversation?.statusIcon ?? conversation?.status_icon ?? null}
                     />
                 ))}
             </>

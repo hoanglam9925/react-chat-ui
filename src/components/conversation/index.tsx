@@ -9,6 +9,7 @@ import MinChatUIContext from '../../contexts/MinChatUIContext';
 export type Props = {
   title: string;
   sentiment_color?: string;
+  statusIcon?: string;
   blockMessage?: boolean;
   lastMessage?: MessageType;
   unread?: boolean,
@@ -224,6 +225,7 @@ const TextContainer = styled.div`
   display: flex;
   justify-content: center;
   flex-direction: column;
+  overflow: hidden;
 `;
 
 const DisplayPictureContainer = styled.div`
@@ -231,7 +233,23 @@ const DisplayPictureContainer = styled.div`
   height: 44px;
   margin-right: 12px;
   box-sizing: border-box;
+  position: relative;
 `;
+
+const DisplayPictureStatus = styled.img<{
+  sentiment_color?: string
+}>`
+  // width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border-width: 2px;
+  border-color: rgb(255 255 255);
+  object-fit: cover;
+  z-index: 2;
+  position: absolute;
+  top: -8px;
+  left: -4px;
+`
 
 const DisplayPicture = styled.img<{
   selected?: boolean
@@ -266,6 +284,7 @@ const MediaContainer = styled.div`
 export default function Conversation({
   title,
   sentiment_color,
+  statusIcon,
   blockMessage,
   lastMessage,
   onClick,
@@ -278,6 +297,10 @@ export default function Conversation({
 
   const [usedAvatar, setUsedAvatar] = React.useState<string>(
     placeholderProfilePNG
+  );
+
+  const [usedStatusIcon, setUsedStatusIcon] = React.useState<string|null>(
+    statusIcon ?? null
   );
 
   const [dateSent, setDateSent] = useState<string | undefined>()
@@ -319,6 +342,12 @@ export default function Conversation({
       setUsedAvatar(avatar);
     }
   }, [avatar]);
+
+  useEffect(() => {
+    if (statusIcon && statusIcon.trim().length > 0) {
+      setUsedStatusIcon(statusIcon);
+    }
+  }, [statusIcon]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -422,7 +451,7 @@ export default function Conversation({
         themeColor={themeColor} />
 
       <ContentContainer sentiment_color={sentiment_color}>
-        <div>
+        <div style={{marginLeft: '10px'}}>
           <DisplayPictureContainer>
             <DisplayPicture
               selected={selected}
@@ -431,6 +460,7 @@ export default function Conversation({
               }}
               src={usedAvatar}
             />
+            {usedStatusIcon && <DisplayPictureStatus src={usedStatusIcon} />}
           </DisplayPictureContainer>
         </div>
 
@@ -466,7 +496,7 @@ export default function Conversation({
               </MediaContainer>
             ) : (
               <div
-                dangerouslySetInnerHTML={{ __html: lastMessage?.text || "" }}></div>
+                dangerouslySetInnerHTML={{ __html: lastMessage?.text?.slice(0, 50) || "" }}></div>
             )}
           </MessageComponent>
           {blockMessage && <div dangerouslySetInnerHTML={{ __html: blockMessage }}></div>}

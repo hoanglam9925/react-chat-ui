@@ -3,24 +3,28 @@ import styled from 'styled-components'
 
 export type Props = {
     children: React.ReactNode
+    showConversationList?: boolean
 }
 
-const Container = styled.div`
+const Container = styled.div<{
+    showConversationList?: boolean
+}>`
  position: relative;
   width: 100%;
   display: flex;
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-//   border: 1px solid #aaa;
+  border: ${props => !props.showConversationList ? " 1px solid #aaa;" : "none"};
 `
 
 
 export default function MessageContainer({
-    children
+    children,
+    showConversationList,
 }: Props) {
   return (
-    <Container>
+    <Container showConversationList={showConversationList}>
         {children}
     </Container>
     )
