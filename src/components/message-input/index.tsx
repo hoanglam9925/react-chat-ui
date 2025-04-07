@@ -5,6 +5,7 @@ import useTypingListener from '../../hooks/useTypingListener';
 import useColorSet from '../../hooks/useColorSet';
 import MinChatUIContext from '../../contexts/MinChatUIContext';
 import botSVG from './bot.svg';
+import manualTakeoverSVG from './manual_takeover.svg';
 
 export type Props = {
   onSendMessage?: (text: string) => void;
@@ -209,6 +210,54 @@ const BotText = styled.span`
   padding-right: 10px;
 `;
 
+const TakeoverContainer = styled.div`
+  width: 100%;
+  padding: 8px 16px;
+  margin-bottom: 8px;
+`;
+
+const TakeoverRow = styled.div`
+  display: flex;
+  gap: 8px;
+  width: 100%;
+`;
+
+const TakeoverButton = styled.div<{ variant: 'primary' | 'secondary' }>`
+  flex: 1;
+  height: 54px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  text-align: center;
+
+  ${({ variant }) =>
+    variant === 'primary'
+      ? `
+    background-color: #1A86D0;
+    border: 1px solid #1A86D0;
+    color: #fff;
+  `
+      : `
+    background-color: #fff;
+    border: 1px solid #f00;
+    color: #f00;
+  `}
+
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
+const TakeoverIcon = styled.img`
+  width: 20px;
+  height: 20px;
+`;
+
 export default function MessageInput({
   onSendMessage,
   mobileView,
@@ -235,6 +284,10 @@ export default function MessageInput({
     setManualUntilTimestampCountdown,
   ] = useState(null);
 
+  const [requestAssistanceTimestamp, setRequestAssistanceTimestamp] = useState(
+    null
+  );
+
   const { setTyping, ...inputProps } = useTypingListener({
     onStartTyping,
     onEndTyping,
@@ -258,6 +311,7 @@ export default function MessageInput({
   const inputPlaceholderColor = useColorSet('--input-placeholder-color');
 
   useEffect(() => {
+    console.debug({ selectedConversation });
     if (!selectedConversation) {
       setManualUntilTimestamp(null);
       setManualUntilTimestampCountdown(null);
@@ -308,6 +362,18 @@ export default function MessageInput({
 
   return (
     <Container mobile={mobileView}>
+      <TakeoverContainer>
+        <TakeoverRow>
+          <TakeoverButton variant="primary">
+            <TakeoverIcon src={manualTakeoverSVG} alt="takeover" />
+            <span>Take Over</span>
+          </TakeoverButton>
+          <TakeoverButton variant="secondary">
+            <span>Cancel Take Over Request</span>
+          </TakeoverButton>
+        </TakeoverRow>
+      </TakeoverContainer>
+
       {manualUntilTimestampCountdown && (
         <Form
           data-testid="message-form"
@@ -332,20 +398,6 @@ export default function MessageInput({
                   fill="#444C57"
                 />
               </svg>
-              {/* <svg
-                            fill={inputAttachColor || themeColor}
-                            width="24"
-                            height="24"
-                            viewBox="0 0 32 32"
-                            xmlns="http://www.w3.org/2000/svg">
-
-                            <g id="SVGRepo_bgCarrier" strokeWidth="0" />
-
-                            <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
-
-                            <g id="SVGRepo_iconCarrier"> <title>paperclip</title> <path d="M29.131 15.262c-0.226-0.227-0.54-0.368-0.886-0.368-0.344 0-0.656 0.139-0.882 0.364l-11.003 10.959c-1.163 1.312-2.853 2.134-4.735 2.134-1.812 0-3.446-0.763-4.598-1.985l-0.003-0.003c-1.236-1.157-2.006-2.799-2.006-4.62 0-1.872 0.813-3.553 2.105-4.711l0.006-0.005 12.001-12c0.769-0.857 1.879-1.394 3.116-1.394s2.348 0.537 3.113 1.391l0.003 0.004c0.858 0.768 1.395 1.879 1.395 3.115s-0.536 2.345-1.389 3.109l-0.004 0.003-11.081 10.996c-1.463 1.438-2.912 1.273-3.698 0.473s-0.926-2.252 0.544-3.695l8.001-8.002c0.228-0.226 0.369-0.54 0.369-0.886 0-0.69-0.56-1.25-1.25-1.25-0.347 0-0.66 0.141-0.887 0.369l-7.992 7.993c-1.141 0.917-1.865 2.313-1.865 3.877 0 1.291 0.493 2.467 1.301 3.35l-0.003-0.004c0.887 0.841 2.089 1.357 3.411 1.357 1.537 0 2.91-0.698 3.821-1.795l0.007-0.008 11.090-11.004c1.307-1.226 2.121-2.963 2.121-4.891 0-0.111-0.003-0.222-0.008-0.332l0.001 0.016c-0.131-1.796-0.914-3.388-2.112-4.558l-0.001-0.001c-1.172-1.199-2.764-1.983-4.537-2.114l-0.023-0.001c-0.089-0.004-0.194-0.007-0.299-0.007-1.933 0-3.676 0.814-4.906 2.118l-0.003 0.003-12.002 12.002c-1.751 1.615-2.845 3.922-2.845 6.483 0 2.514 1.053 4.781 2.741 6.386l0.004 0.004c1.635 1.654 3.894 2.688 6.394 2.721l0.006 0c2.554-0.041 4.845-1.135 6.463-2.866l0.005-0.005 11-10.955c0.227-0.226 0.367-0.539 0.367-0.885 0-0.345-0.14-0.657-0.365-0.883l0 0z" /> </g>
-
-                        </svg> */}
             </AttachmentContainer>
           ) : (
             <AttachPlaceholder />
