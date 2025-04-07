@@ -11,23 +11,29 @@ interface Props extends MediaType {
 }
 
 const ImageContainer = styled.div`
-    width: 99%;
+    width: 100%;
+    max-width: 100%;
     padding: 1px;
     position: relative;
-user-select: none;
-
-    `
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+`
 
 const Image = styled.img<{
     borderCss: string,
 }>`
-    width: 100%;
+    max-width: 100%;
+    height: auto;
     margin: 0px;
     position: relative;
+    object-fit: contain;
+    box-sizing: border-box;
 
     ${({ borderCss }) => borderCss};
-
- `
+`
 
 const FileContainer = styled.a`
 text-align:left;
@@ -71,10 +77,12 @@ const Video = styled.video<{
     borderCss: string,
 }>`
     width: 100%;
-    height: 240px;
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    box-sizing: border-box;
 
     ${({ borderCss }) => borderCss};
-
 `
 
 const Audio = styled.audio`

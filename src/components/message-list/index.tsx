@@ -25,36 +25,38 @@ export type MessageListProps = {
 }
 
 const Container = styled.div`
-height: 100%;
-/* display: flex;
-flex-direction: column; */
-position: relative;
-max-height: 100vh;
-overflow-y: hidden;
-/* background-color: #ffffff; */
-padding-left: 0px;
-padding-right: 0px; 
+    height: 100%;
+    position: relative;
+    max-height: 100vh;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 `
 
 const InnerContainer = styled.div`
-height: 100%;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 `
 
 const ScrollContainer = styled.div`
-overflow-y: auto;
-position: relative;
-height: 100%;
-width: 100%;
-max-height: 100vh;
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-scrollbar-width: none; /* Firefox */
- -ms-overflow-style: none;  /* Internet Explorer 10+ */
-::-webkit-scrollbar { /* WebKit */
-    width: 0;
-    height: 0;
-}
+    overflow-y: auto;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    max-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    ::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
 `
 
 const Buffer = styled.div`
