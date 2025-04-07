@@ -17,7 +17,11 @@ export type Props = {
     placeholder?: string;
     disabled?: boolean;
     showSendButton: boolean;
+
     selectedConversation?: any;
+    onBotReturnClick?: () => void;
+    onTakeoverClick?: () => void;
+    onCancelTakeoverClick?: () => void;
 
     onKeyDown?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
     onKeyUp?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
@@ -347,7 +351,7 @@ export default function MessageInput({
         const updateCountdown = () => {
             const now = Math.floor(Date.now() / 1000); // Current time in seconds
             const timeLeft = Math.max(0, manualUntilTimestamp - now);
-            
+
             // Convert to HH:MM:SS
             const hours = Math.floor(timeLeft / 3600);
             const minutes = Math.floor((timeLeft % 3600) / 60);

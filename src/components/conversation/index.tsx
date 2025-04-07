@@ -299,7 +299,7 @@ export default function Conversation({
     placeholderProfilePNG
   );
 
-  const [usedStatusIcon, setUsedStatusIcon] = React.useState<string|null>(
+  const [usedStatusIcon, setUsedStatusIcon] = React.useState<string | null>(
     statusIcon ?? null
   );
 
@@ -344,6 +344,7 @@ export default function Conversation({
   }, [avatar]);
 
   useEffect(() => {
+    setUsedStatusIcon(null);
     if (statusIcon && statusIcon.trim().length > 0) {
       setUsedStatusIcon(statusIcon);
     }
@@ -451,7 +452,7 @@ export default function Conversation({
         themeColor={themeColor} />
 
       <ContentContainer sentiment_color={sentiment_color}>
-        <div style={{marginLeft: '10px'}}>
+        <div style={{ marginLeft: '10px' }}>
           <DisplayPictureContainer>
             <DisplayPicture
               selected={selected}
