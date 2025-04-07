@@ -8,23 +8,23 @@ import botSVG from './bot.svg';
 import manualTakeoverSVG from './manual_takeover.svg';
 
 export type Props = {
-  onSendMessage?: (text: string) => void;
-  mobileView?: boolean;
-  onStartTyping?: () => void;
-  onEndTyping?: () => void;
-  showAttachButton?: boolean;
-  onAttachClick?: () => void;
-  placeholder?: string;
-  disabled?: boolean;
-  showSendButton: boolean;
-  selectedConversation?: any;
+    onSendMessage?: (text: string) => void;
+    mobileView?: boolean;
+    onStartTyping?: () => void;
+    onEndTyping?: () => void;
+    showAttachButton?: boolean;
+    onAttachClick?: () => void;
+    placeholder?: string;
+    disabled?: boolean;
+    showSendButton: boolean;
+    selectedConversation?: any;
 
-  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
-  onKeyUp?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
+    onKeyDown?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
+    onKeyUp?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
 };
 
 const Container = styled.div<{
-  mobile?: boolean;
+    mobile?: boolean;
 }>`
   box-sizing: border-box;
   position: relative;
@@ -33,18 +33,18 @@ const Container = styled.div<{
   justify-content: center;
 
   ${({ mobile }) =>
-    mobile
-      ? `
+        mobile
+            ? `
     padding-right: 0px;
 
 `
-      : ` 
+            : ` 
 padding-right: 0px;
  `}
 `;
 const Form = styled.form<{
-  backgroundColor?: string;
-  borderColor?: string;
+    backgroundColor?: string;
+    borderColor?: string;
 }>`
   background-color: ${({ backgroundColor }) => backgroundColor || '#f3f4f6'};
   padding-top: 8px;
@@ -70,8 +70,8 @@ const InputContainer = styled.div`
 `;
 
 const InputBackground = styled.div<{
-  showOpacity: boolean;
-  bgColor?: string;
+    showOpacity: boolean;
+    bgColor?: string;
 }>`
   ${({ showOpacity }) => (showOpacity ? `opacity: 0.4;` : '')}
   height: 100%;
@@ -90,7 +90,7 @@ const InputElementContainer = styled.div`
 `;
 
 const InputElement = styled.div<{
-  color?: string;
+    color?: string;
 }>`
   width: 100%;
   border: none;
@@ -130,11 +130,11 @@ const ArrowContainer = styled.div<{ showCursor: boolean; disabled: boolean }>`
   padding-left: 20px;
   padding-right: 18px;
   cursor: ${({ showCursor, disabled }) =>
-    showCursor && !disabled ? 'pointer' : 'default'};
+        showCursor && !disabled ? 'pointer' : 'default'};
   display: flex;
   align-items: end;
   opacity: ${({ showCursor, disabled }) =>
-    showCursor && !disabled ? '1' : '0.4'};
+        showCursor && !disabled ? '1' : '0.4'};
   height: 100%;
   padding-top: 8px;
   padding-bottom: 8px;
@@ -152,12 +152,12 @@ const AttachmentContainer = styled.div<{ disabled: boolean }>`
   padding-bottom: 10px;
 
   ${({ disabled }) =>
-    !disabled
-      ? `
+        !disabled
+            ? `
     cursor: pointer;
     opacity: 1;
     `
-      : `
+            : `
     opacity: 0.6;
     `}
 `;
@@ -172,7 +172,7 @@ const SendPlaceholder = styled.div`
 `;
 
 const PlaceHolder = styled.span<{
-  color?: string;
+    color?: string;
 }>`
   color: ${({ color }) => color || '#9ca3af'};
   position: absolute;
@@ -236,13 +236,13 @@ const TakeoverButton = styled.div<{ variant: 'primary' | 'secondary' }>`
   text-align: center;
 
   ${({ variant }) =>
-    variant === 'primary'
-      ? `
+        variant === 'primary'
+            ? `
     background-color: #1A86D0;
     border: 1px solid #1A86D0;
     color: #fff;
   `
-      : `
+            : `
     background-color: #fff;
     border: 1px solid #f00;
     color: #f00;
@@ -259,213 +259,236 @@ const TakeoverIcon = styled.img`
 `;
 
 export default function MessageInput({
-  onSendMessage,
-  mobileView,
-  onStartTyping,
-  onEndTyping,
-  showAttachButton = true,
-  showSendButton = true,
-  disabled = false,
-  onAttachClick,
-  placeholder = 'Send a message...',
-  onKeyDown,
-  onKeyUp,
-  selectedConversation,
-  onBotReturnClick,
-}: Props) {
-  const { themeColor } = useContext(MinChatUIContext);
-
-  const [text, setText] = useState('');
-  const inputRef = useRef<any>(null);
-
-  const [manualUntilTimestamp, setManualUntilTimestamp] = useState(null);
-  const [
-    manualUntilTimestampCountdown,
-    setManualUntilTimestampCountdown,
-  ] = useState(null);
-
-  const [requestAssistanceTimestamp, setRequestAssistanceTimestamp] = useState(
-    null
-  );
-
-  const { setTyping, ...inputProps } = useTypingListener({
+    onSendMessage,
+    mobileView,
     onStartTyping,
     onEndTyping,
-  });
+    showAttachButton = true,
+    showSendButton = true,
+    disabled = false,
+    onAttachClick,
+    placeholder = 'Send a message...',
+    onKeyDown,
+    onKeyUp,
+    selectedConversation,
+    onBotReturnClick,
+    onTakeoverClick,
+    onCancelTakeoverClick,
+}: Props) {
+    const { themeColor } = useContext(MinChatUIContext);
 
-  const handleSubmit = () => {
-    if (!disabled && text.trim().length > 0) {
-      inputRef.current.innerText = '';
-      setTyping(false);
-      onSendMessage && onSendMessage(text.trim());
-      setText('');
-    }
-  };
+    const [text, setText] = useState('');
+    const inputRef = useRef<any>(null);
 
-  // colorSets
-  const backgroundColor = useColorSet('--input-background-color');
-  const inputTextColor = useColorSet('--input-text-color');
-  const inputAttachColor = useColorSet('--input-attach-color');
-  const inputSendColor = useColorSet('--input-send-color');
-  const inputElementColor = useColorSet('--input-element-color');
-  const inputPlaceholderColor = useColorSet('--input-placeholder-color');
+    const [manualUntilTimestamp, setManualUntilTimestamp] = useState(null);
+    const [
+        manualUntilTimestampCountdown,
+        setManualUntilTimestampCountdown,
+    ] = useState(null);
 
-  useEffect(() => {
-    console.debug({ selectedConversation });
-    if (!selectedConversation) {
-      setManualUntilTimestamp(null);
-      setManualUntilTimestampCountdown(null);
-      return;
-    }
+    const [requestAssistantTimestamp, setRequestAssistantTimestamp] = useState(
+        null
+    );
 
-    setManualUntilTimestamp(null);
-    setManualUntilTimestampCountdown(null);
+    const { setTyping, ...inputProps } = useTypingListener({
+        onStartTyping,
+        onEndTyping,
+    });
 
-    const manualUntilTimestamp = selectedConversation.manual_until_timestamp;
-    if (manualUntilTimestamp) {
-      // Convert to timestamp in seconds
-      const timestamp = Math.floor(
-        new Date(manualUntilTimestamp).getTime() / 1000
-      );
-      setManualUntilTimestamp(timestamp);
-    }
-  }, [selectedConversation]);
-
-  useEffect(() => {
-    if (!manualUntilTimestamp) {
-      setManualUntilTimestampCountdown(null);
-      return;
-    }
-
-    const updateCountdown = () => {
-      const now = Math.floor(Date.now() / 1000); // Current time in seconds
-      const timeLeft = Math.max(0, manualUntilTimestamp - now);
-      // Convert to HH:MM:SS
-      const hours = Math.floor(timeLeft / 3600);
-      const minutes = Math.floor((timeLeft % 3600) / 60);
-      const seconds = timeLeft % 60;
-      setManualUntilTimestampCountdown(`${hours}:${minutes}:${seconds}`);
+    const handleSubmit = () => {
+        if (!disabled && text.trim().length > 0) {
+            inputRef.current.innerText = '';
+            setTyping(false);
+            onSendMessage && onSendMessage(text.trim());
+            setText('');
+        }
     };
 
-    updateCountdown();
+    // colorSets
+    const backgroundColor = useColorSet('--input-background-color');
+    const inputTextColor = useColorSet('--input-text-color');
+    const inputAttachColor = useColorSet('--input-attach-color');
+    const inputSendColor = useColorSet('--input-send-color');
+    const inputElementColor = useColorSet('--input-element-color');
+    const inputPlaceholderColor = useColorSet('--input-placeholder-color');
 
-    const interval = setInterval(updateCountdown, 1000);
+    useEffect(() => {
+        if (!selectedConversation) {
+            setManualUntilTimestamp(null);
+            setManualUntilTimestampCountdown(null);
+            setRequestAssistantTimestamp(null);
+            return;
+        }
 
-    return () => clearInterval(interval);
-  }, [manualUntilTimestamp]);
+        setManualUntilTimestamp(null);
+        setManualUntilTimestampCountdown(null);
+        setRequestAssistantTimestamp(null);
+        const manualUntilTimestamp = selectedConversation.manual_until_timestamp;
+        const requestAssistantTimestamp = selectedConversation.request_assistant_timestamp;
+        if (manualUntilTimestamp) {
+            // Convert to timestamp in seconds
+            const timestamp = Math.floor(
+                new Date(manualUntilTimestamp).getTime() / 1000
+            );
+            setManualUntilTimestamp(timestamp);
+        }
 
-  const handleBotReturnClick = () => {
-    onBotReturnClick && onBotReturnClick();
-    setManualUntilTimestamp(null);
-    setManualUntilTimestampCountdown(null);
-  };
+        if (requestAssistantTimestamp) {
+            setRequestAssistantTimestamp(requestAssistantTimestamp);
+        }
+    }, [selectedConversation]);
 
-  return (
-    <Container mobile={mobileView}>
-      <TakeoverContainer>
-        <TakeoverRow>
-          <TakeoverButton variant="primary">
-            <TakeoverIcon src={manualTakeoverSVG} alt="takeover" />
-            <span>Take Over</span>
-          </TakeoverButton>
-          <TakeoverButton variant="secondary">
-            <span>Cancel Take Over Request</span>
-          </TakeoverButton>
-        </TakeoverRow>
-      </TakeoverContainer>
+    useEffect(() => {
+        if (!manualUntilTimestamp) {
+            setManualUntilTimestampCountdown(null);
+            return;
+        }
 
-      {manualUntilTimestampCountdown && (
-        <Form
-          data-testid="message-form"
-          className="fade-animation"
-          backgroundColor={backgroundColor}
-          onSubmit={(e: any) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
-        >
-          {showAttachButton ? (
-            <AttachmentContainer disabled={disabled} onClick={onAttachClick}>
-              <svg
-                width="14"
-                height="18"
-                viewBox="0 0 14 18"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M0.930542 1.99509C0.930542 0.893231 1.74213 0 2.74005 0H9.08394L13.6136 5.00246V15.9976C13.6136 17.1035 12.8009 18 11.7964 18H2.74772C1.74412 18 0.930542 17.1074 0.930542 16.0049V1.99509ZM9.98926 6.00049C8.98599 5.99995 8.17801 5.10521 8.17801 4.00019V1H2.74005C2.24162 1 1.83648 1.44645 1.83648 1.99509V16.0049C1.83648 16.5536 2.24313 17 2.74772 17H11.7964C12.3006 17 12.7077 16.5513 12.7077 15.9976V6.00196L9.98926 6.00049ZM2.74241 8.5C2.74241 8.22386 2.93704 8 3.19329 8H6.82119C7.07021 8 7.27208 8.23193 7.27208 8.5C7.27208 8.77614 7.07744 9 6.82119 9H3.19329C2.94428 9 2.74241 8.76807 2.74241 8.5ZM2.74241 11.5C2.74241 11.2239 2.94396 11 3.20413 11H10.4341C10.6891 11 10.8958 11.2319 10.8958 11.5C10.8958 11.7761 10.6943 12 10.4341 12H3.20413C2.94913 12 2.74241 11.7681 2.74241 11.5ZM2.74241 14.5C2.74241 14.2239 2.94396 14 3.20413 14H10.4341C10.6891 14 10.8958 14.2319 10.8958 14.5C10.8958 14.7761 10.6943 15 10.4341 15H3.20413C2.94913 15 2.74241 14.7681 2.74241 14.5Z"
-                  fill="#444C57"
-                />
-              </svg>
-            </AttachmentContainer>
-          ) : (
-            <AttachPlaceholder />
-          )}
+        const updateCountdown = () => {
+            const now = Math.floor(Date.now() / 1000); // Current time in seconds
+            const timeLeft = Math.max(0, manualUntilTimestamp - now);
+            
+            // Convert to HH:MM:SS
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            setManualUntilTimestampCountdown(`${hours}:${minutes}:${seconds}`);
 
-          <BotReturnContainer onClick={handleBotReturnClick}>
-            <BotImage src={botSVG} alt="bot" />
-            <BotText>Return to bot in {manualUntilTimestampCountdown}</BotText>
-          </BotReturnContainer>
+            // When countdown reaches 0, trigger the bot return
+            if (timeLeft === 0) {
+                handleBotReturnClick();
+            }
+        };
 
-          <InputContainer>
-            <InputBackground
-              showOpacity={inputElementColor ? false : true}
-              bgColor={inputElementColor || themeColor}
-            />
+        updateCountdown();
 
-            <InputElementContainer>
-              <InputElement
-                color={inputTextColor}
-                ref={inputRef}
-                data-testid="message-input"
-                onInput={(event: any) => setText(event.target.innerText)}
-                contentEditable={!disabled}
-                suppressContentEditableWarning={true}
-                onKeyDown={(event: any) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault(); // Prevents adding a new line
-                    handleSubmit();
-                    return;
-                  }
+        const interval = setInterval(updateCountdown, 1000);
 
-                  inputProps.onKeyDown();
-                  onKeyDown && onKeyDown(event);
-                }}
-                onKeyUp={(event: any) => {
-                  inputProps.onKeyUp();
-                  onKeyUp && onKeyUp(event);
-                }}
-              />
-              {text === '' && (
-                <PlaceHolder color={inputPlaceholderColor}>
-                  {placeholder}
-                </PlaceHolder>
-              )}
-            </InputElementContainer>
-          </InputContainer>
+        return () => clearInterval(interval);
+    }, [manualUntilTimestamp]);
 
-          {showSendButton ? (
-            <ArrowContainer
-              disabled={disabled}
-              showCursor={text.trim().length > 0}
-              onClick={handleSubmit}
-            >
-              <svg
-                fill={inputSendColor || themeColor}
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 512 512"
-              >
-                <path d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480V396.4c0-4 1.5-7.8 4.2-10.7L331.8 202.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8 17.7 316.6C7.1 311.3 .3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z" />
-              </svg>
-            </ArrowContainer>
-          ) : (
-            <SendPlaceholder />
-          )}
-        </Form>
-      )}
-    </Container>
-  );
+    const handleBotReturnClick = () => {
+        onBotReturnClick && onBotReturnClick();
+        setManualUntilTimestamp(null);
+        setManualUntilTimestampCountdown(null);
+    };
+
+    const handleTakeoverClick = () => {
+        onTakeoverClick && onTakeoverClick();
+        setRequestAssistantTimestamp(null);
+    };
+
+    const handleCancelTakeoverClick = () => {
+        onCancelTakeoverClick && onCancelTakeoverClick();
+        setRequestAssistantTimestamp(null);
+    };
+
+    return (
+        <Container mobile={mobileView}>
+            {requestAssistantTimestamp && <TakeoverContainer>
+                <TakeoverRow>
+                    <TakeoverButton variant="primary" onClick={handleTakeoverClick}>
+                        <TakeoverIcon src={manualTakeoverSVG} alt="takeover" />
+                        <span>Take Over</span>
+                    </TakeoverButton>
+                    <TakeoverButton variant="secondary" onClick={handleCancelTakeoverClick}>
+                        <span>Cancel Take Over Request</span>
+                    </TakeoverButton>
+                </TakeoverRow>
+            </TakeoverContainer>}
+
+            {manualUntilTimestampCountdown && (
+                <Form
+                    data-testid="message-form"
+                    className="fade-animation"
+                    backgroundColor={backgroundColor}
+                    onSubmit={(e: any) => {
+                        e.preventDefault();
+                        handleSubmit();
+                    }}
+                >
+                    {showAttachButton ? (
+                        <AttachmentContainer disabled={disabled} onClick={onAttachClick}>
+                            <svg
+                                width="14"
+                                height="18"
+                                viewBox="0 0 14 18"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M0.930542 1.99509C0.930542 0.893231 1.74213 0 2.74005 0H9.08394L13.6136 5.00246V15.9976C13.6136 17.1035 12.8009 18 11.7964 18H2.74772C1.74412 18 0.930542 17.1074 0.930542 16.0049V1.99509ZM9.98926 6.00049C8.98599 5.99995 8.17801 5.10521 8.17801 4.00019V1H2.74005C2.24162 1 1.83648 1.44645 1.83648 1.99509V16.0049C1.83648 16.5536 2.24313 17 2.74772 17H11.7964C12.3006 17 12.7077 16.5513 12.7077 15.9976V6.00196L9.98926 6.00049ZM2.74241 8.5C2.74241 8.22386 2.93704 8 3.19329 8H6.82119C7.07021 8 7.27208 8.23193 7.27208 8.5C7.27208 8.77614 7.07744 9 6.82119 9H3.19329C2.94428 9 2.74241 8.76807 2.74241 8.5ZM2.74241 11.5C2.74241 11.2239 2.94396 11 3.20413 11H10.4341C10.6891 11 10.8958 11.2319 10.8958 11.5C10.8958 11.7761 10.6943 12 10.4341 12H3.20413C2.94913 12 2.74241 11.7681 2.74241 11.5ZM2.74241 14.5C2.74241 14.2239 2.94396 14 3.20413 14H10.4341C10.6891 14 10.8958 14.2319 10.8958 14.5C10.8958 14.7761 10.6943 15 10.4341 15H3.20413C2.94913 15 2.74241 14.7681 2.74241 14.5Z"
+                                    fill="#444C57"
+                                />
+                            </svg>
+                        </AttachmentContainer>
+                    ) : (
+                        <AttachPlaceholder />
+                    )}
+
+                    <BotReturnContainer onClick={handleBotReturnClick}>
+                        <BotImage src={botSVG} alt="bot" />
+                        <BotText>Return to bot in {manualUntilTimestampCountdown}</BotText>
+                    </BotReturnContainer>
+
+                    <InputContainer>
+                        <InputBackground
+                            showOpacity={inputElementColor ? false : true}
+                            bgColor={inputElementColor || themeColor}
+                        />
+
+                        <InputElementContainer>
+                            <InputElement
+                                color={inputTextColor}
+                                ref={inputRef}
+                                data-testid="message-input"
+                                onInput={(event: any) => setText(event.target.innerText)}
+                                contentEditable={!disabled}
+                                suppressContentEditableWarning={true}
+                                onKeyDown={(event: any) => {
+                                    if (event.key === 'Enter') {
+                                        event.preventDefault(); // Prevents adding a new line
+                                        handleSubmit();
+                                        return;
+                                    }
+
+                                    inputProps.onKeyDown();
+                                    onKeyDown && onKeyDown(event);
+                                }}
+                                onKeyUp={(event: any) => {
+                                    inputProps.onKeyUp();
+                                    onKeyUp && onKeyUp(event);
+                                }}
+                            />
+                            {text === '' && (
+                                <PlaceHolder color={inputPlaceholderColor}>
+                                    {placeholder}
+                                </PlaceHolder>
+                            )}
+                        </InputElementContainer>
+                    </InputContainer>
+
+                    {showSendButton ? (
+                        <ArrowContainer
+                            disabled={disabled}
+                            showCursor={text.trim().length > 0}
+                            onClick={handleSubmit}
+                        >
+                            <svg
+                                fill={inputSendColor || themeColor}
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 512 512"
+                            >
+                                <path d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480V396.4c0-4 1.5-7.8 4.2-10.7L331.8 202.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8 17.7 316.6C7.1 311.3 .3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z" />
+                            </svg>
+                        </ArrowContainer>
+                    ) : (
+                        <SendPlaceholder />
+                    )}
+                </Form>
+            )}
+        </Container>
+    );
 }
