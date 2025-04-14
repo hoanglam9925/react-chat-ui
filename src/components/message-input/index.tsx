@@ -212,11 +212,12 @@ const BotText = styled.span`
   align-content: center;
   white-space: nowrap;
   padding-right: 10px;
+  color: #9CA3AF;
 `;
 
 const TakeoverContainer = styled.div`
   width: 100%;
-  padding: 8px 16px;
+  padding: 8px 20px;
   margin-bottom: 8px;
 `;
 
@@ -347,6 +348,7 @@ export default function MessageInput({
             setManualUntilTimestampCountdown(null);
             return;
         }
+        console.debug({manualUntilTimestamp});
 
         const updateCountdown = () => {
             const now = Math.floor(Date.now() / 1000); // Current time in seconds
@@ -356,7 +358,12 @@ export default function MessageInput({
             const hours = Math.floor(timeLeft / 3600);
             const minutes = Math.floor((timeLeft % 3600) / 60);
             const seconds = timeLeft % 60;
-            setManualUntilTimestampCountdown(`${hours}:${minutes}:${seconds}`);
+
+            const timeString = hours === 0
+                ? `${minutes}:${seconds}`
+                : `${hours}:${minutes}:${seconds}`;
+
+            setManualUntilTimestampCountdown(timeString);
 
             // When countdown reaches 0, trigger the bot return
             if (timeLeft === 0) {

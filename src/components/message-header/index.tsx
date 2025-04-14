@@ -40,6 +40,8 @@ const InnerContainer = styled.div<{
     display: flex;
     align-items: center;
     box-sizing: border-box;
+    padding-bottom: 15px;
+    margin-top: 15px;
 `
 
 const HeadingContainer = styled.div`

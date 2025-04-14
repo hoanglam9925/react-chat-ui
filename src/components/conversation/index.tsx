@@ -49,9 +49,9 @@ const ContentContainer = styled.div<{
   flex-direction: row;
   align-items: center;
   padding-left: 8px;
-    padding-right: 8px; /* Include right padding for symmetry */
-  padding-top: 10px; /* Adjust top padding as needed */
-  padding-bottom: 10px; /* Adjust bottom padding as needed */
+  // padding-right: 8px; /* Include right padding for symmetry */
+  // padding-top: 10px; /* Adjust top padding as needed */
+  // padding-bottom: 10px; /* Adjust bottom padding as needed */
   width: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -249,6 +249,8 @@ const DisplayPictureStatus = styled.img<{
   position: absolute;
   top: -8px;
   left: -4px;
+  // -webkit-filter: drop-shadow(0px 0px 2px rgb(255,255,255));
+  // filter: drop-shadow(0px 0px 2px rgb(255,255,255));
 `
 
 const DisplayPicture = styled.img<{

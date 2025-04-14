@@ -25,7 +25,7 @@ export type MessageListProps = {
 }
 
 const Container = styled.div`
-    height: 100%;
+    height: 91%;
     position: relative;
     max-height: 100vh;
     overflow: hidden;
@@ -37,6 +37,8 @@ const Container = styled.div`
 const InnerContainer = styled.div`
     height: 100%;
     width: 100%;
+    padding-top: 17px;
+    // padding-bottom: 60px;
     max-width: 100%;
     box-sizing: border-box;
 `
