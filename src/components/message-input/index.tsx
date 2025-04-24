@@ -22,7 +22,8 @@ export type Props = {
     onBotReturnClick?: () => void;
     onTakeoverClick?: () => void;
     onCancelTakeoverClick?: () => void;
-
+    onInputAreaVisibilityChange?: (isVisible: boolean) => void;
+    
     onKeyDown?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
     onKeyUp?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
 };
@@ -279,6 +280,7 @@ export default function MessageInput({
     onBotReturnClick,
     onTakeoverClick,
     onCancelTakeoverClick,
+    onInputAreaVisibilityChange,
 }: Props) {
     const { themeColor } = useContext(MinChatUIContext);
 
@@ -291,9 +293,7 @@ export default function MessageInput({
         setManualUntilTimestampCountdown,
     ] = useState(null);
 
-    const [requestAssistantTimestamp, setRequestAssistantTimestamp] = useState(
-        null
-    );
+    const [requestAssistantTimestamp, setRequestAssistantTimestamp] = useState(null);
 
     const { setTyping, ...inputProps } = useTypingListener({
         onStartTyping,
@@ -348,7 +348,6 @@ export default function MessageInput({
             setManualUntilTimestampCountdown(null);
             return;
         }
-        console.debug({manualUntilTimestamp});
 
         const updateCountdown = () => {
             const now = Math.floor(Date.now() / 1000); // Current time in seconds
@@ -377,6 +376,11 @@ export default function MessageInput({
 
         return () => clearInterval(interval);
     }, [manualUntilTimestamp]);
+
+    useEffect(() => {
+        const hasVisibleComponents = !!manualUntilTimestamp || !!requestAssistantTimestamp;
+        onInputAreaVisibilityChange && onInputAreaVisibilityChange(hasVisibleComponents);
+    }, [manualUntilTimestamp, requestAssistantTimestamp, onInputAreaVisibilityChange]);
 
     const handleBotReturnClick = () => {
         onBotReturnClick && onBotReturnClick();

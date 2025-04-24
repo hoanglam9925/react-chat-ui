@@ -12,6 +12,7 @@ import useColorSet from '../../hooks/useColorSet'
 export type MessageListProps = {
     themeColor?: string
     messages?: MessageType[]
+    selectedConversation?: any
     currentUserId?: string
     loading?: boolean
     onScrollToTop?: () => void
@@ -22,10 +23,13 @@ export type MessageListProps = {
     customEmptyMessagesComponent?: React.ReactNode
     customLoaderComponent?: React.ReactNode,
     changeConversation?: boolean
+    inputAreaShown?: boolean
 }
 
-const Container = styled.div`
-    height: 91%;
+const Container = styled.div<{
+    inputAreaShown?: boolean
+}>`
+    height: ${({ inputAreaShown }) => inputAreaShown ? 'calc(100% - 128px)' : '95%'};
     position: relative;
     max-height: 100vh;
     overflow: hidden;
@@ -92,6 +96,7 @@ position: relative;
 export default function MessageList({
     messages,
     currentUserId,
+    selectedConversation,
     loading = false,
     onScrollToTop,
     themeColor = '#6ea9d7',
@@ -101,7 +106,8 @@ export default function MessageList({
     customTypingIndicatorComponent,
     customLoaderComponent,
     customEmptyMessagesComponent,
-    changeConversation
+    changeConversation,
+    inputAreaShown = false
 }: MessageListProps) {
 
     /** keeps track of whether messages was previously empty or whether it has already scrolled */
@@ -118,8 +124,35 @@ export default function MessageList({
     const isFirstRender = useRef(true);
     const observerRef = useRef<MutationObserver | null>(null);
 
+    const [manualUntilTimestamp, setManualUntilTimestamp] = useState(null);
+    const [requestAssistantTimestamp, setRequestAssistantTimestamp] = useState(null);
+
     const { detectBottom, detectTop } = useDetectScrollPosition(scrollContainerRef)
     const noMessageTextColor = useColorSet("--no-message-text-color")
+
+    useEffect(() => {
+        if (!selectedConversation) {
+            setManualUntilTimestamp(null);
+            setRequestAssistantTimestamp(null);
+            return;
+        }
+
+        setManualUntilTimestamp(null);
+        setRequestAssistantTimestamp(null);
+        const manualUntilTimestamp = selectedConversation.manual_until_timestamp;
+        const requestAssistantTimestamp = selectedConversation.request_assistant_timestamp;
+        if (manualUntilTimestamp) {
+            // Convert to timestamp in seconds
+            const timestamp = Math.floor(
+                new Date(manualUntilTimestamp).getTime() / 1000
+            );
+            setManualUntilTimestamp(timestamp);
+        }
+
+        if (requestAssistantTimestamp) {
+            setRequestAssistantTimestamp(requestAssistantTimestamp);
+        }
+    }, [selectedConversation]);
 
     // Update ref when state changes
     useEffect(() => {
@@ -160,17 +193,17 @@ export default function MessageList({
     // Setup MutationObserver
     useEffect(() => {
         if (!scrollContainerRef.current) return;
-        
+
         // Disconnect any existing observer
         if (observerRef.current) {
             observerRef.current.disconnect();
         }
-        
+
         // Create and connect new observer
         observerRef.current = new MutationObserver(adjustScrollPosition);
-        observerRef.current.observe(scrollContainerRef.current, { 
-            childList: true, 
-            subtree: true 
+        observerRef.current.observe(scrollContainerRef.current, {
+            childList: true,
+            subtree: true
         });
 
         return () => {
@@ -202,26 +235,26 @@ export default function MessageList({
             if (observerRef.current) {
                 observerRef.current.disconnect();
             }
-            
+
             // Reset scroll state
             isFirstRender.current = true;
-            
+
             // Set timeout to wait for DOM to update before reconnecting observer
             setTimeout(() => {
                 scrollToBottom();
-                
+
                 setTimeout(() => {
                     // Update references after scrolling
                     if (scrollContainerRef.current) {
                         previousScrollHeight.current = scrollContainerRef.current.scrollHeight;
                         previousScrollTop.current = scrollContainerRef.current.scrollTop;
                     }
-                    
+
                     // Reconnect observer
                     if (scrollContainerRef.current && observerRef.current) {
-                        observerRef.current.observe(scrollContainerRef.current, { 
-                            childList: true, 
-                            subtree: true 
+                        observerRef.current.observe(scrollContainerRef.current, {
+                            childList: true,
+                            subtree: true
                         });
                     }
                 }, 100);
@@ -306,7 +339,7 @@ export default function MessageList({
     };
 
     return (
-        <Container ref={containerRef}>
+        <Container ref={containerRef} inputAreaShown={inputAreaShown}>
             <MessageListBackground
                 roundedCorners={false}
                 mobileView={mobileView} />
@@ -314,8 +347,8 @@ export default function MessageList({
             <InnerContainer>
                 {loading ? (
                     <LoadingContainer>
-                        {customLoaderComponent ? 
-                            customLoaderComponent : 
+                        {customLoaderComponent ?
+                            customLoaderComponent :
                             <Loading themeColor={themeColor} />}
                     </LoadingContainer>
                 ) : (
