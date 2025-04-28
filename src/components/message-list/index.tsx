@@ -29,7 +29,7 @@ export type MessageListProps = {
 const Container = styled.div<{
     inputAreaShown?: boolean
 }>`
-    height: ${({ inputAreaShown }) => inputAreaShown ? 'calc(100% - 128px)' : '95%'};
+    height: ${({ inputAreaShown }) => inputAreaShown ? 'calc(100% - 128px)' : '100%'};
     position: relative;
     max-height: 100vh;
     overflow: hidden;
@@ -50,10 +50,10 @@ const InnerContainer = styled.div`
 const ScrollContainer = styled.div`
     overflow-y: auto;
     position: relative;
-    height: 100%;
+    height: 95%;
     width: 100%;
     max-width: 100%;
-    max-height: 100vh;
+    max-height: 100%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
