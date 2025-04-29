@@ -96,7 +96,8 @@ export default function IncomingMessage({
     last,
     single,
     created_at,
-    debugInfo
+    debugInfo,
+    messageLink
 }: Omit<Props, "type" | "clusterFirstMessage" | "clusterLastMessage" | "seen">) {
 
     const { themeColor } = useContext(MinChatUIContext)
@@ -228,10 +229,11 @@ export default function IncomingMessage({
                             <TextContent
                                 linkColor={linkColor}
                                 color={textColor}>{text}</TextContent>}
-
+                                
                         <Timestamp
                             color={timestampColor}
                             date={created_at}
+                            messageLink={messageLink}
                         />
                         { }
                     </MessageContainer>

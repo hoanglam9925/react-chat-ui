@@ -47,10 +47,12 @@ const InnerContainer = styled.div`
     box-sizing: border-box;
 `
 
-const ScrollContainer = styled.div`
+const ScrollContainer = styled.div<{
+    inputAreaShown?: boolean
+}>`
     overflow-y: auto;
     position: relative;
-    height: 95%;
+    height: ${({ inputAreaShown }) => inputAreaShown ? '100%' : '95%'};
     width: 100%;
     max-width: 100%;
     max-height: 100%;
@@ -353,6 +355,7 @@ export default function MessageList({
                     </LoadingContainer>
                 ) : (
                     <ScrollContainer
+                        inputAreaShown={inputAreaShown}
                         onScroll={handleScroll}
                         ref={scrollContainerRef}>
 
@@ -399,6 +402,7 @@ export default function MessageList({
                                     last={single ? false : last}
                                     single={single}
                                     text={text}
+                                    messageId={message.messageId ?? null}
                                     seen={seen}
                                     created_at={createdAt}
                                     media={media}
@@ -408,6 +412,7 @@ export default function MessageList({
                                     clusterFirstMessage={firstClusterMessage}
                                     clusterLastMessage={lastClusterMessage}
                                     debugInfo={debugInfo}
+                                    messageLink={message.messageLink ?? null}
                                 />
 
                             } else {
@@ -418,6 +423,7 @@ export default function MessageList({
                                     key={key}
                                     user={user}
                                     media={media}
+                                    messageId={message.messageId ?? null}
                                     seen={seen}
                                     created_at={createdAt}
                                     showAvatar={lastClusterMessage}
@@ -426,6 +432,7 @@ export default function MessageList({
                                     single={single}
                                     text={text}
                                     debugInfo={debugInfo}
+                                    messageLink={message.messageLink ?? null}
                                 />
                             }
                         })}

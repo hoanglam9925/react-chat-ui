@@ -66,7 +66,8 @@ export default function MyMessage({
     clusterLastMessage,
     created_at,
     seen,
-    debugInfo
+    debugInfo,
+    messageLink
 }: Omit<Props, "showHeader" | "showAvatar" | "type">) {
 
     const { themeColor } = useContext(MinChatUIContext)
@@ -185,7 +186,8 @@ export default function MyMessage({
                         date={created_at}
                         seen={seen}
                         failed={failed}
-                        loading={loading} />
+                        loading={loading}
+                        messageLink={messageLink} />
 
                 </Container>
                 {debugInfo && <DebugInfo dangerouslySetInnerHTML={{ __html: stringify(debugInfo) }}></DebugInfo>}
