@@ -52,7 +52,7 @@ const ScrollContainer = styled.div<{
 }>`
     overflow-y: auto;
     position: relative;
-    height: ${({ inputAreaShown }) => inputAreaShown ? '100%' : '95%'};
+    height: ${({ inputAreaShown }) => inputAreaShown ? '100%' : '92%'};
     width: 100%;
     max-width: 100%;
     max-height: 100%;

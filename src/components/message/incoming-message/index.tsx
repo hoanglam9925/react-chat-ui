@@ -16,6 +16,8 @@ const MessageContainer = styled(MyMessageContainer)`
     margin-left: 0px;
     box-sizing: border-box;
     margin-bottom: 0px;
+    border: 1px solid #7C69EF;
+    border-radius: 8px;
 `
 
 
@@ -79,13 +81,6 @@ const HeaderContainer = styled.div`
  margin-bottom: 6px;
  `
 
-const DebugInfo = styled.div`
-    font-size: 10px;
-    color: rgba(0,0,0,.36);
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
- `
-
-
 
 export default function IncomingMessage({
     text,
@@ -120,72 +115,6 @@ export default function IncomingMessage({
 
     const customBackgroundColor = media?.type == 'audio' ? 'transparent' : backgroundColor
 
-    function extractStyledContent(htmlString: string) {
-        // Guard clause for non-string inputs
-        if (typeof htmlString !== 'string') return null;
-
-        const styleRegex = /<([a-z]+)[^>]*style=(['"])(.*?)\2[^>]*>(.*?)<\/\1>/i;
-        const match = htmlString.match(styleRegex);
-
-        if (match) {
-            return {
-                fullMatch: match[0],
-                tag: match[1],
-                styleContent: match[3],
-                innerContent: match[4]
-            };
-        }
-        return null;
-    }
-
-    function sanitizeStyle(styleString: string): string {
-        // Only allow color styles to prevent XSS
-        const colorRegex = /color:\s*([^;]+);?/;
-        const colorMatch = styleString.match(colorRegex);
-        return colorMatch ? `color: ${colorMatch[1]}` : '';
-    }
-
-    function stringify(obj_from_json: any): string {
-        // Handle primitives and null
-        if (typeof obj_from_json !== "object" || obj_from_json === null) {
-            return String(obj_from_json);
-        }
-
-        // Handle arrays
-        if (Array.isArray(obj_from_json)) {
-            return obj_from_json.map(item => stringify(item)).join(', ');
-        }
-
-        try {
-            const formattedString = Object.entries(obj_from_json)
-                .map(([key, value]) => {
-                    // Get key style in key
-                    const keyStyle = key.includes('style=') ? extractStyledContent(key) : null;
-                    let doubleQuotedStyle = '';
-
-                    if (keyStyle?.styleContent) {
-                        const sanitizedStyle = sanitizeStyle(keyStyle.styleContent);
-                        if (sanitizedStyle) {
-                            doubleQuotedStyle = `style="${sanitizedStyle}"`;
-                        }
-                    }
-
-                    // Convert value to string, handling nested objects
-                    const stringValue = typeof value === 'object' && value !== null
-                        ? JSON.stringify(value)
-                        : String(value);
-
-                    return `${key}<span ${doubleQuotedStyle}>:</span> ${stringValue}`;
-                })
-                .join('<br>');
-
-            return formattedString;
-        } catch (error) {
-            console.error('Error in stringify:', error);
-            return String(obj_from_json);
-        }
-    }
-
     return (
         <Wrapper
             data-testid="incoming-message"
@@ -205,7 +134,8 @@ export default function IncomingMessage({
             <TextWrapper>
                 {showHeader &&
                     <HeaderContainer>
-                        <Name color={nameTextColor}>{user?.name}</Name>
+                        {/* <Name color={nameTextColor}>{user?.name}</Name> */}
+                        <Name color={nameTextColor}></Name>
                     </HeaderContainer>
                 }
 
@@ -228,17 +158,20 @@ export default function IncomingMessage({
                             :
                             <TextContent
                                 linkColor={linkColor}
-                                color={textColor}>{text}</TextContent>}
-                                
+                                color={textColor}
+                                date={created_at}
+                                messageLink={messageLink}>{text}</TextContent>}
+
                         <Timestamp
                             color={timestampColor}
                             date={created_at}
                             messageLink={messageLink}
+                            debugInfo={debugInfo}
+                            type="incoming"
                         />
-                        { }
                     </MessageContainer>
                 </div>
-                {debugInfo && <DebugInfo dangerouslySetInnerHTML={{ __html: stringify(debugInfo) }}></DebugInfo>}
+
             </TextWrapper>
         </Wrapper>
     )
