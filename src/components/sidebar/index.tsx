@@ -13,7 +13,7 @@ const defaultStyle: React.CSSProperties = {
     position: 'relative',
     boxSizing: 'border-box',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    borderRadius: '8px',
+    borderRadius: '16px',
     backgroundColor: '#fff',
     // transition: 'all 0.3s ease',
     overflow: 'hidden',

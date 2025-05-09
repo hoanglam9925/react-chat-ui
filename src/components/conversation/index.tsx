@@ -27,7 +27,7 @@ const Container = styled.div<{
   width: 100%;
   height: 88px;
   position: relative;
-  margin-top: 1px;
+  // margin-top: 1px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -35,6 +35,10 @@ const Container = styled.div<{
   &:hover .conversation-background {
     opacity: ${props => props.selected ? 1 : 0.09};
     background-color: #444C57;
+  }
+
+  & .conversation-user-title {
+    color: ${props => props.selected ? '#fff' : ''};
   }
 
   & .conversation-user-extend-info {
